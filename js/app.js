@@ -3,6 +3,9 @@
 // State management, page routing, scoring, game flow
 // ============================================================
 
+// ── Demo Mode Detection ─────────────────────────────────────
+const DEMO_MODE = new URLSearchParams(window.location.search).get('demo') === 'true';
+
 // ── State ────────────────────────────────────────────────────
 const STATE_KEY = 'geocaching_puputan_state';
 
@@ -323,8 +326,14 @@ function startNavigation() {
     gameMap.setCachePosition(level.cache.lat, level.cache.lon, `Level ${levelId}`);
 
     // Reset confirm button
-    document.getElementById('btn-confirm').disabled = true;
-    document.getElementById('nav-notification').classList.add('hidden');
+    if (DEMO_MODE) {
+      document.getElementById('btn-confirm').disabled = false;
+      document.getElementById('nav-notification').textContent = '🛠️ DEMO MODE — Konfirmasi posisi kapan saja';
+      document.getElementById('nav-notification').classList.remove('hidden');
+    } else {
+      document.getElementById('btn-confirm').disabled = true;
+      document.getElementById('nav-notification').classList.add('hidden');
+    }
 
     // Start GPS tracking
     if (!geoTracker) {
@@ -360,7 +369,17 @@ function startNavigation() {
       }
     );
 
-    if (!started) {
+    if (!started && DEMO_MODE) {
+      // Demo mode: simulate GPS near cache
+      showToast('🛠️ Demo Mode: GPS disimulasikan di dekat cache', 'info');
+      gpsDot.className = 'gps-dot active';
+      gpsText.textContent = 'GPS simulasi (demo)';
+      const simLat = level.cache.lat + (Math.random() - 0.5) * 0.0002;
+      const simLon = level.cache.lon + (Math.random() - 0.5) * 0.0002;
+      gameMap.setPlayerPosition(simLat, simLon, 5);
+      gameMap.fitBounds();
+      updateNavigationHUD({ lat: simLat, lon: simLon, accuracy: 5 }, level.cache);
+    } else if (!started) {
       showToast('GPS tidak tersedia pada perangkat ini.', 'error');
     }
   }, 400);
@@ -411,7 +430,27 @@ function stopNavigation() {
 function confirmPosition() {
   const levelId = state.currentLevel;
   const level = LEVELS.find(l => l.id === levelId);
-  if (!level || !geoTracker || !geoTracker.currentPosition) return;
+  if (!level) return;
+
+  // Demo mode: bypass GPS check
+  if (DEMO_MODE) {
+    stopNavigation();
+    createConfetti();
+    showToast('🎉 [DEMO] Posisi dikonfirmasi! Cache ditemukan!', 'success');
+
+    if (!state.levelsCompleted.includes(levelId)) {
+      state.levelsCompleted.push(levelId);
+    }
+    saveState();
+
+    setTimeout(() => {
+      showStory(levelId);
+    }, 1500);
+    return;
+  }
+
+  // Normal mode: require GPS within 30m
+  if (!geoTracker || !geoTracker.currentPosition) return;
 
   const pos = geoTracker.currentPosition;
   const distance = haversineDistance(pos.lat, pos.lon, level.cache.lat, level.cache.lon);
@@ -619,4 +658,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Initialize first page ──
   document.getElementById('page-home').style.display = 'flex';
   currentPage = 'page-home';
+
+  // ── Demo Mode Banner ──
+  if (DEMO_MODE) {
+    const banner = document.createElement('div');
+    banner.id = 'demo-banner';
+    banner.innerHTML = '🛠️ <strong>DEVELOPER DEMO MODE</strong> — GPS bypass aktif · <a href="' + window.location.pathname + '" style="color:#1A1A2E;text-decoration:underline">Matikan Demo</a>';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#F0A500;color:#1A1A2E;text-align:center;padding:8px 16px;font-size:0.8rem;font-family:var(--font-body);font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+    document.body.prepend(banner);
+    // Add top padding to prevent content from hiding behind banner
+    document.body.style.paddingTop = '36px';
+    console.log('%c🛠️ DEMO MODE ACTIVE', 'background:#F0A500;color:#1A1A2E;padding:8px 16px;font-size:16px;font-weight:bold;border-radius:4px;');
+  }
 });
