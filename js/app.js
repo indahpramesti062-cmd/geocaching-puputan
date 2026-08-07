@@ -461,7 +461,7 @@ function showStory(levelId) {
   // Typewriter effect on first paragraph
   const firstP = document.querySelector('#story-text p');
   if (firstP) {
-    typewriterEffect(firstP);
+    typeWriter(firstP, firstP.innerHTML);
   }
 }
 

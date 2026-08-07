@@ -92,8 +92,8 @@ const LEVELS = [
     cache: {
       lat: -8.5530,
       lon: 115.4680,
-      latDMS: 'S 8°33\'11.0"',
-      lonDMS: 'E 115°28\'05.0"'
+      latDMS: "S 8°33'11.0\"",
+      lonDMS: "E 115°28'05.0\""
     },
     story: `<p><strong><em>Tawan karang</em></strong> adalah hukum adat maritim yang berlaku di seluruh kerajaan Bali sejak sekitar abad ke-9/10 — jauh sebelum Eropa datang. Aturannya sederhana namun tegas: kapal asing yang kandas di perairan sebuah kerajaan Bali, beserta seluruh muatan dan awaknya, menjadi hak milik raja penguasa wilayah tersebut.</p>
 <p>Belanda, yang berkali-kali dirugikan kapal dagangnya kandas dan disita, memandang aturan ini sebagai penghalang dagang. Sejak awal abad ke-19 Belanda menekan raja-raja Bali untuk menghapuskannya. Pada <span class="year-highlight">24 Mei 1843</span>, tujuh kerajaan Bali — termasuk Klungkung — menandatangani perjanjian yang salah satu isinya adalah penghapusan tawan karang. Namun di lapangan, perjanjian ini nyaris tak pernah benar-benar dijalankan.</p>
@@ -161,8 +161,8 @@ const LEVELS = [
     cache: {
       lat: -8.5433,
       lon: 115.4706,
-      latDMS: 'S 8°32\'36.0"',
-      lonDMS: 'E 115°28\'14.0"'
+      latDMS: "S 8°32'36.0\"",
+      lonDMS: "E 115°28'14.0\""
     },
     story: `<p>Ekspedisi militer Belanda ke Klungkung dipimpin <strong>Mayor Jenderal Andreas Victor Michiels</strong> — seorang komandan dengan reputasi telah memenangkan kampanye di tujuh daerah berbeda. <strong>Perang Kusamba</strong> (dikenal juga sebagai <strong>Perang Bali III</strong>) resmi pecah pada <span class="year-highlight">24–25 Mei 1849</span>, tak lama setelah Belanda menuntaskan penaklukan Jagaraga dan Karangasem.</p>
 <p>Pada <span class="year-highlight">24 Mei 1849</span>, Belanda menyerang dari arah timur menuju Kusamba. Laskar Klungkung — dipimpin <strong>Anak Agung Made Sangging</strong>, panglima perang sekaligus adik raja Klungkung — telah memperkuat garis pertahanan sepanjang punggung bukit Wates, dengan pasukan induk sekitar <strong>2.000 prajurit</strong> berpusat di kompleks <strong>Pura Goa Lawah</strong>.</p>
@@ -231,8 +231,8 @@ const LEVELS = [
     cache: {
       lat: -8.5520,
       lon: 115.4640,
-      latDMS: 'S 8°33\'07.0"',
-      lonDMS: 'E 115°27\'50.0"'
+      latDMS: "S 8°33'07.0\"",
+      lonDMS: "E 115°27'50.0\""
     },
     story: `<p><strong>Kusanegara</strong> adalah istana yang dibangun Raja <strong>I Dewa Agung Putra</strong> di Desa Kusamba, menjadikan Kusamba pusat pemerintahan kedua Klungkung sekaligus pelabuhan penting.</p>
 <p>Setelah mundur dari Goa Lawah, pasukan Belanda mendirikan perkemahan di sekitar Puri Kusamba pada malam <span class="year-highlight">24 Mei 1849</span> karena kelelahan — sekitar <strong>3.000 sikep Klungkung</strong> telah memperkuat pertahanan di sana. Situasi ini dimanfaatkan penguasa Klungkung saat itu, <strong>I Dewa Agung Istri Kanya</strong>.</p>
@@ -304,8 +304,8 @@ const LEVELS = [
     cache: {
       lat: -8.5431,
       lon: 115.4069,
-      latDMS: 'S 8°32\'35.0"',
-      lonDMS: 'E 115°24\'25.0"'
+      latDMS: "S 8°32'35.0\"",
+      lonDMS: "E 115°24'25.0\""
     },
     story: `<p>Setelah Perang Kusamba, Klungkung terpaksa menandatangani ulang kontrak dengan Belanda pada <span class="year-highlight">13 Juli 1849</span> — namun ini lebih merupakan taktik diplomasi untuk menahan laju serangan lanjutan ke ibu kota, bukan penyerahan sesungguhnya. Selama lebih dari lima dekade berikutnya, dominasi Belanda di Bali diperluas bertahap lewat tekanan ekonomi, salah satunya lewat kebijakan <strong>monopoli perdagangan opium (candu)</strong> — sistem <em>opium regie</em>.</p>
 <p>Pemicu proksimat pecahnya perang pada April <span class="year-highlight">1908</span> adalah <strong>patroli keamanan Belanda di Desa Gelgel</strong> pada <span class="year-highlight">13–16 April 1908</span>, yang bertujuan memeriksa tempat-tempat penjualan candu di bawah monopoli Belanda. Klungkung menganggap patroli ini sebagai pelanggaran kedaulatan. Kerabat raja, <strong>Cokorda Gelgel</strong>, mempersiapkan penyerangan, dan serangan dilancarkan pada <span class="year-highlight">16 April 1908</span>.</p>
@@ -377,8 +377,8 @@ const LEVELS = [
     cache: {
       lat: -8.5389,
       lon: 115.4044,
-      latDMS: 'S 8°32\'20.0"',
-      lonDMS: 'E 115°24\'16.0"'
+      latDMS: "S 8°32'20.0\"",
+      lonDMS: "E 115°24'16.0\""
     },
     story: `<p>Setelah bentrokan patroli di Gelgel (<span class="year-highlight">16 April</span>), Residen Bali-Lombok <strong>F.A. Liefrinck</strong> tiba di Jumpai membawa empat kapal perang untuk memberi ultimatum kepada Raja Klungkung. Sejak <span class="year-highlight">20 April</span>, kapal perang Belanda mulai membombardir pesisir Klungkung dengan tembakan meriam bertubi-tubi. Ribuan tentara didatangkan dari Batavia, mendarat bertahap hingga <span class="year-highlight">26 April 1908</span>.</p>
 <p>Pada pagi <span class="year-highlight">28 April 1908</span>, pasukan Belanda menembus pertahanan di Kusamba dan Jumpai, lalu merangsek ke Semarapura hingga mengepung istana. Pertempuran di depan istana berlangsung berlapis dan tragis: <strong>Cokorda Gelgel</strong> dan <strong>Dewa Agung Gde Semarabawa</strong> gugur lebih dulu di benteng selatan.</p>
@@ -435,8 +435,8 @@ const LEVELS = [
     cache: {
       lat: -8.5194,
       lon: 115.3808,
-      latDMS: 'S 8°31\'10.0"',
-      lonDMS: 'E 115°22\'51.0"'
+      latDMS: "S 8°31'10.0\"",
+      lonDMS: "E 115°22'51.0\""
     },
     story: `<p>Dalam kosmologi Hindu Bali, upacara <strong>Ngaben</strong> (kremasi) bertujuan mengembalikan lima unsur alam (<em>Panca Maha Bhuta</em>) yang membentuk tubuh manusia kepada asalnya. Salah satu tahapannya adalah melarungkan abu jenazah ke air yang mengalir — sungai atau laut — sebagai simbol pemurnian dan pelepasan roh menuju alam berikutnya.</p>
 <p><strong>Menurut tradisi lisan masyarakat Klungkung</strong>, abu jenazah <strong>Ida Dewa Agung Jambe</strong> beserta kerabat dan pengikutnya yang gugur pada <span class="year-highlight">1908</span> dilarungkan di <strong>Tukad Unda</strong>, sungai yang mengalir di sisi barat Semarapura.</p>
