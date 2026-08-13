@@ -84,8 +84,6 @@ function renderLevelMap() {
   const container = document.getElementById('level-map-container');
   container.innerHTML = '';
 
-  document.getElementById('score-display').textContent = `${state.score} Poin`;
-
   // Create progress bar
   const completedCount = state.levelsCompleted.length;
   const totalCount = LEVELS.length;
@@ -165,7 +163,7 @@ function startLevel(levelId) {
   }
 
   // Show clue
-  document.getElementById('clue-level-title').textContent = `Level ${level.id}`;
+  document.getElementById('clue-level-title').textContent = `⚔️ Level ${level.id}`;
   document.getElementById('clue-intro-text').innerHTML = `<em>"${level.clueIntro}"</em>`;
   document.getElementById('clue-question-text').textContent = level.clue;
   document.getElementById('answer-input').value = '';
@@ -278,7 +276,7 @@ function revealCache(levelId) {
   // Compute UTM dynamically
   if (typeof latLonToUTM === 'function') {
     const utm = latLonToUTM(cache.lat, cache.lon);
-    document.getElementById('cache-utm').textContent = `Zone ${utm.zone}${utm.letter}, E ${Math.round(utm.easting).toLocaleString('id-ID')}, N ${Math.round(utm.northing).toLocaleString('id-ID')}`;
+    document.getElementById('cache-utm').textContent = `Zone ${utm.zone}, E ${Math.round(utm.easting).toLocaleString('id-ID')}, N ${Math.round(utm.northing).toLocaleString('id-ID')}`;
   } else {
     document.getElementById('cache-utm').textContent = '—';
   }
@@ -473,7 +471,7 @@ function showStory(levelId) {
   const level = LEVELS.find(l => l.id === levelId);
   if (!level) return;
 
-  document.getElementById('story-level-title').textContent = level.title;
+  document.getElementById('story-level-title').textContent = `⚔️ ${level.title}`;
   document.getElementById('story-text').innerHTML = level.story;
 
   // Video section
@@ -509,8 +507,8 @@ function showPostTest(levelId) {
   const level = LEVELS.find(l => l.id === levelId);
   if (!level) return;
 
-  document.getElementById('posttest-level-title').textContent = `Post-Test: Level ${levelId}`;
-  document.getElementById('posttest-score-display').textContent = `${state.score} Poin`;
+  document.getElementById('posttest-level-title').textContent = `📝 Post-Test: Level ${levelId}`;
+  document.getElementById('posttest-score-display').textContent = `🏆 ${state.score} Poin`;
 
   // Hide result, show submit button
   document.getElementById('posttest-result').classList.add('hidden');
@@ -629,7 +627,7 @@ function submitPostTest() {
   document.getElementById('btn-submit-posttest').classList.add('hidden');
   document.getElementById('btn-next-level').classList.remove('hidden');
 
-  document.getElementById('posttest-score-display').textContent = `${state.score} Poin`;
+  document.getElementById('posttest-score-display').textContent = `🏆 ${state.score} Poin`;
 
   if (percentage >= 80) createConfetti();
   showToast(`📝 Post-Test selesai! +${earnedPoints} poin`, 'success');

@@ -22,27 +22,47 @@
        PAGE 1: HOME / BERANDA
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-home" class="page">
-    <div class="home-hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <div class="hero-badge">⚔️ GEOCACHING</div>
-        <h1 class="hero-title">Jejak Puputan<br>Klungkung</h1>
-        <p class="hero-subtitle">Telusuri 7 situs bersejarah Perang Kusamba & Puputan Klungkung di Kota Semarapura, Bali</p>
-        
-        <button id="btn-start" class="btn btn-primary btn-lg">
-          <span class="btn-icon">🗺️</span>
-          Mulai Petualangan
-        </button>
+    <div class="home-content">
+      <div class="game-logo">⚔️</div>
+      <h1 class="game-title">Jejak Puputan Klungkung</h1>
+      <p class="game-subtitle">Geocaching Bersejarah</p>
 
-        <div id="continue-section" class="hidden">
-          <button id="btn-continue" class="btn btn-secondary">
-            <span class="btn-icon">▶️</span>
-            Lanjutkan Progress
-          </button>
-        </div>
-
-        <button id="btn-reset" class="btn btn-ghost btn-sm">🔄 Reset Progress</button>
+      <div class="ornament">
+        <span class="ornament-icon">🏛️</span>
       </div>
+
+      <p class="tagline">Telusuri 7 situs bersejarah Perang Kusamba & Puputan Klungkung di Kota Semarapura, Bali</p>
+
+      <div class="info-section">
+        <div class="glass-card info-card">
+          <h3>📖 Tentang Game</h3>
+          <p>Game ini mengajak kamu menelusuri jejak perjuangan Kerajaan Klungkung melawan kolonialisme Belanda (1849–1908). Kunjungi lokasi-lokasi bersejarah secara langsung, pecahkan teka-teki, dan pelajari sejarah melalui narasi interaktif.</p>
+        </div>
+        <div class="glass-card info-card">
+          <h3>🗺️ Cara Bermain</h3>
+          <p>1. Jawab clue/teka-teki untuk menemukan koordinat cache<br>
+             2. Gunakan GPS untuk navigasi ke lokasi cache<br>
+             3. Konfirmasi posisi saat jarak ≤30 meter<br>
+             4. Baca materi sejarah & jawab post-test<br>
+             5. Lanjut ke level berikutnya!</p>
+        </div>
+        <div class="glass-card info-card">
+          <h3>⚠️ Persiapan</h3>
+          <p>Pastikan GPS/lokasi aktif di perangkat kamu. Game ini membutuhkan kunjungan langsung ke lokasi-lokasi di area Klungkung, Bali. Level 0 (Prolog) bisa dimainkan tanpa GPS.</p>
+        </div>
+      </div>
+
+      <button id="btn-start" class="btn-primary">
+        🗺️ Mulai Petualangan
+      </button>
+
+      <div id="continue-section" class="hidden">
+        <button id="btn-continue" class="btn-secondary">
+          ▶️ Lanjutkan Progress
+        </button>
+      </div>
+
+      <button id="btn-reset" class="btn-danger">🔄 Reset Progress</button>
     </div>
   </div>
 
@@ -50,42 +70,38 @@
        PAGE 2: LEVEL MAP / PETA LEVEL
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-levels" class="page" style="display:none">
-    <header class="page-header">
-      <button id="btn-back-home" class="btn btn-icon-only">←</button>
-      <h2>Peta Perjalanan</h2>
-      <div class="score-badge" id="score-display">0 Poin</div>
-    </header>
-
-    <div class="level-map" id="level-map-container">
-      <!-- Level cards rendered by JS -->
+    <div id="level-map-container">
+      <!-- Level map rendered by JS -->
     </div>
+    <button id="btn-back-home" class="btn-danger" style="margin-top:var(--space-md)">← Kembali ke Beranda</button>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
        PAGE 3: CLUE / TEKA-TEKI
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-clue" class="page" style="display:none">
-    <header class="page-header">
-      <button id="btn-back-levels" class="btn btn-icon-only">←</button>
-      <h2 id="clue-level-title">Level 0</h2>
-      <div class="timer-badge" id="clue-timer">00:00</div>
-    </header>
-
-    <div class="clue-container">
-      <div class="clue-card">
-        <div class="clue-intro" id="clue-intro-text"></div>
-        <div class="clue-question" id="clue-question-text"></div>
+    <div class="clue-content">
+      <div class="level-badge" id="clue-level-title">⚔️ Level 0</div>
+      
+      <div class="parchment-card">
+        <div class="clue-text" id="clue-intro-text"></div>
+        <div class="ornament"><span class="ornament-icon">🗝️</span></div>
+        <div class="clue-text" id="clue-question-text" style="font-weight:600"></div>
       </div>
 
       <div class="answer-section">
         <input type="text" id="answer-input" class="answer-input" placeholder="Ketik jawaban..." autocomplete="off">
-        <button id="btn-check" class="btn btn-primary">Periksa Jawaban</button>
+        <button id="btn-check" class="btn-primary">🔍 Periksa Jawaban</button>
       </div>
 
       <div id="hint-section" class="hint-section">
-        <button id="btn-hint" class="btn btn-ghost btn-sm">💡 Gunakan Hint</button>
+        <button id="btn-hint" class="btn-danger">💡 Gunakan Hint</button>
         <div id="hint-text" class="hint-text hidden"></div>
       </div>
+
+      <div class="timer-display" id="clue-timer">00:00</div>
+
+      <button id="btn-back-levels" class="btn-danger">← Kembali ke Peta</button>
     </div>
   </div>
 
@@ -93,21 +109,18 @@
        PAGE 4: CACHE REVEAL / KOORDINAT
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-cache" class="page" style="display:none">
-    <header class="page-header">
-      <h2>📍 Cache Ditemukan!</h2>
-    </header>
+    <div class="cache-content">
+      <h2 class="cache-title">📍 Cache Ditemukan!</h2>
 
-    <div class="cache-container">
-      <div class="cache-card">
-        <div class="cache-label">Lokasi Cache</div>
-        <div class="cache-location" id="cache-location-name">📍 —</div>
+      <div class="compass-card">
+        <div class="cache-location-name" id="cache-location-name">📍 —</div>
 
-        <div class="coord-grid">
-          <div class="coord-item">
+        <div class="coordinate-display">
+          <div class="coord-row">
             <span class="coord-label">Lat/Long (WGS84)</span>
             <span class="coord-value" id="cache-latlon">—</span>
           </div>
-          <div class="coord-item">
+          <div class="coord-row">
             <span class="coord-label">UTM</span>
             <span class="coord-value" id="cache-utm">—</span>
           </div>
@@ -115,17 +128,16 @@
       </div>
 
       <div class="cache-actions">
-        <a id="btn-alpine" class="btn btn-secondary" href="#" target="_blank">
-          <span class="btn-icon">🧭</span> Buka di Alpine Quest
+        <a id="btn-alpine" class="btn-secondary" href="#" target="_blank">
+          🧭 Buka di Alpine Quest
         </a>
-        <a id="btn-gmaps" class="btn btn-secondary" href="#" target="_blank">
-          <span class="btn-icon">🗺️</span> Buka di Google Maps
+        <a id="btn-gmaps" class="btn-secondary" href="#" target="_blank">
+          🗺️ Buka di Google Maps
         </a>
       </div>
 
-      <button id="btn-navigate" class="btn btn-primary btn-lg">
-        <span class="btn-icon">🚶</span>
-        Mulai Navigasi
+      <button id="btn-navigate" class="btn-primary">
+        🚶 Mulai Navigasi
       </button>
     </div>
   </div>
@@ -134,20 +146,9 @@
        PAGE 5: NAVIGATION / NAVIGASI GPS
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-nav" class="page" style="display:none">
-    <header class="page-header">
-      <button id="btn-nav-back" class="btn btn-icon-only">←</button>
-      <h2>Navigasi ke Cache</h2>
-      <div class="gps-status">
-        <span class="gps-dot" id="gps-dot"></span>
-        <span id="gps-status-text">Mencari GPS...</span>
-      </div>
-    </header>
-
-    <div class="nav-container">
-      <!-- Map -->
-      <div class="map-wrapper">
-        <div id="map-container" class="map-container"></div>
-      </div>
+    <div class="nav-content">
+      <!-- Back button -->
+      <button id="btn-nav-back" class="nav-back-btn">←</button>
 
       <!-- Navigation HUD -->
       <div class="nav-hud">
@@ -163,20 +164,32 @@
           <span class="hud-label">Akurasi</span>
           <span class="hud-value" id="nav-accuracy">—</span>
         </div>
-        <div class="hud-item hud-full">
+        <div class="hud-item">
           <span class="hud-label">Posisi Anda</span>
-          <span class="hud-value hud-small" id="nav-position">—</span>
+          <span class="hud-value" id="nav-position" style="font-size:0.75rem">—</span>
         </div>
       </div>
 
+      <!-- Map -->
+      <div id="map-container" class="map-container"></div>
+
+      <!-- GPS Status -->
+      <div class="gps-status" style="position:absolute;top:80px;right:var(--space-md);z-index:1001;">
+        <span class="gps-dot" id="gps-dot"></span>
+        <span id="gps-status-text" style="font-size:0.7rem;color:var(--gold)">Mencari GPS...</span>
+      </div>
+
+      <!-- Notification -->
       <div id="nav-notification" class="nav-notification hidden">
         ✅ Anda sudah dekat! Konfirmasi posisi Anda.
       </div>
 
-      <button id="btn-confirm" class="btn btn-primary btn-lg" disabled>
-        <span class="btn-icon">📍</span>
-        Konfirmasi Posisi
-      </button>
+      <!-- Bottom bar -->
+      <div class="nav-bottom">
+        <button id="btn-confirm" class="btn-primary" disabled>
+          📍 Konfirmasi Posisi
+        </button>
+      </div>
     </div>
   </div>
 
@@ -184,13 +197,13 @@
        PAGE 6: STORY / NARASI SEJARAH
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-story" class="page" style="display:none">
-    <header class="page-header">
-      <h2 id="story-level-title">Materi Sejarah</h2>
-    </header>
+    <div class="story-content">
+      <div class="story-header">
+        <div class="level-badge" id="story-level-title">⚔️ Materi Sejarah</div>
+      </div>
 
-    <div class="story-container">
-      <div class="story-card">
-        <div class="story-content" id="story-text"></div>
+      <div class="parchment-card story-card">
+        <div class="story-text" id="story-text"></div>
       </div>
 
       <div id="video-section" class="video-section hidden">
@@ -198,10 +211,11 @@
         <div id="video-links" class="video-links"></div>
       </div>
 
-      <button id="btn-to-posttest" class="btn btn-primary btn-lg">
-        <span class="btn-icon">📝</span>
-        Lanjut ke Post-Test
-      </button>
+      <div class="story-actions">
+        <button id="btn-to-posttest" class="btn-primary">
+          📝 Lanjut ke Post-Test
+        </button>
+      </div>
     </div>
   </div>
 
@@ -209,32 +223,28 @@
        PAGE 7: POST-TEST / QUIZ
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-posttest" class="page" style="display:none">
-    <header class="page-header">
-      <h2 id="posttest-level-title">Post-Test</h2>
-      <div class="score-badge" id="posttest-score-display">0 Poin</div>
-    </header>
-
     <div class="posttest-container">
+      <div class="level-badge" id="posttest-level-title">📝 Post-Test</div>
+      <div class="score-display" id="posttest-score-display">🏆 0 Poin</div>
+
       <div id="posttest-questions" class="posttest-questions">
         <!-- Questions rendered by JS -->
       </div>
 
       <div id="posttest-result" class="posttest-result hidden">
-        <div class="posttest-result-card">
+        <div class="glass-card posttest-result-card">
           <div class="result-icon" id="posttest-result-icon">🎯</div>
           <div class="result-text" id="posttest-result-text">Hasil Post-Test</div>
           <div class="result-score" id="posttest-result-score">0/0</div>
         </div>
       </div>
 
-      <button id="btn-submit-posttest" class="btn btn-primary btn-lg">
-        <span class="btn-icon">✅</span>
-        Submit Jawaban
+      <button id="btn-submit-posttest" class="btn-primary">
+        ✅ Submit Jawaban
       </button>
 
-      <button id="btn-next-level" class="btn btn-primary btn-lg hidden">
-        <span class="btn-icon">➡️</span>
-        Level Berikutnya
+      <button id="btn-next-level" class="btn-primary hidden">
+        ➡️ Level Berikutnya
       </button>
     </div>
   </div>
@@ -243,30 +253,26 @@
        PAGE 8: COMPLETION / SELESAI
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-complete" class="page" style="display:none">
-    <div class="complete-container">
-      <div class="complete-hero">
-        <div class="complete-icon">🏆</div>
-        <h2>Perjalanan Selesai!</h2>
-        <div class="complete-score">
-          <span class="score-label">Skor Total</span>
-          <span class="score-number" id="final-score">0</span>
-        </div>
+    <div class="complete-content">
+      <div class="trophy-icon">🏆</div>
+      <h2 class="complete-title">Perjalanan Selesai!</h2>
+
+      <div class="glass-card score-card">
+        <div class="final-score" id="final-score">0 Poin</div>
       </div>
 
-      <div class="complete-story" id="complete-narrative"></div>
+      <div class="parchment-card closing-card" id="complete-narrative"></div>
 
-      <div class="complete-stats" id="complete-stats">
+      <div class="glass-card" id="complete-stats">
         <!-- Stats rendered by JS -->
       </div>
 
       <div class="complete-actions">
-        <button id="btn-replay" class="btn btn-secondary">
-          <span class="btn-icon">🔄</span>
-          Main Ulang
+        <button id="btn-replay" class="btn-secondary">
+          🔄 Main Ulang
         </button>
-        <button id="btn-share" class="btn btn-primary">
-          <span class="btn-icon">📤</span>
-          Bagikan Hasil
+        <button id="btn-share" class="btn-primary">
+          📤 Bagikan Hasil
         </button>
       </div>
     </div>
