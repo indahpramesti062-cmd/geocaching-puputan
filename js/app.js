@@ -64,10 +64,16 @@ function resetState() {
 
 // ── Page Router ──────────────────────────────────────────────
 function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = 'none';
+    p.classList.remove('active');
+  });
   const page = document.getElementById(pageId);
   if (page) {
     page.style.display = 'flex';
+    // Force reflow before adding active class for transition
+    void page.offsetWidth;
+    page.classList.add('active');
     page.scrollTop = 0;
     currentPage = pageId;
   }
@@ -759,8 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-share').addEventListener('click', shareResult);
 
   // ── Initialize first page ──
-  document.getElementById('page-home').style.display = 'flex';
-  currentPage = 'page-home';
+  showPage('page-home');
 
   // ── Demo Mode Banner ──
   if (DEMO_MODE) {
