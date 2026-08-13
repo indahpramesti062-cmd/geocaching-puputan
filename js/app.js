@@ -86,35 +86,68 @@ function renderLevelMap() {
 
   document.getElementById('score-display').textContent = `${state.score} Poin`;
 
+  // Create progress bar
+  const completedCount = state.levelsCompleted.length;
+  const totalCount = LEVELS.length;
+  const progressPercent = Math.round((completedCount / totalCount) * 100);
+
+  const progressHTML = `
+    <div class="levels-header">
+      <h2>Peta Perjalanan</h2>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+      </div>
+      <span class="progress-text">${completedCount}/${totalCount} Level Selesai</span>
+    </div>
+    <div class="score-display">🏆 ${state.score} Poin</div>
+  `;
+
+  const levelsContent = document.createElement('div');
+  levelsContent.className = 'levels-content';
+  levelsContent.innerHTML = progressHTML;
+
+  // Create level path
+  const pathContainer = document.createElement('div');
+  pathContainer.className = 'level-path-container';
+
   LEVELS.forEach(level => {
     const isCompleted = state.levelsCompleted.includes(level.id);
     const isCurrent = level.id === state.currentLevel;
     const isLocked = level.id > state.currentLevel;
 
-    const card = document.createElement('div');
-    card.className = `level-card ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''} ${isLocked ? 'locked' : ''}`;
+    const item = document.createElement('div');
+    item.className = `level-item ${isCompleted ? 'completed' : ''} ${isCurrent ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
 
-    const statusIcon = isCompleted ? '✅' : isCurrent ? '📍' : '🔒';
-    const gpsTag = level.hasGPS ? '<span class="level-tag">📡 GPS</span>' : '<span class="level-tag prolog-tag">📖 Prolog</span>';
+    const nodeState = isCompleted ? 'completed' : isCurrent ? 'active' : 'locked';
+    const nodeIcon = isCompleted ? '✅' : isCurrent ? (level.hasGPS ? '📍' : '📖') : '🔒';
 
-    card.innerHTML = `
-      <div class="level-header">
-        <span class="level-number">${statusIcon} Level ${level.id}</span>
-        ${gpsTag}
+    const scoreHTML = isCompleted && state.postTestScores[level.id] !== undefined
+      ? `<div class="level-score-badge">📝 ${state.postTestScores[level.id]} poin</div>`
+      : '';
+
+    item.innerHTML = `
+      <div class="level-node ${nodeState}">
+        <span class="node-icon">${nodeIcon}</span>
       </div>
-      <h3 class="level-title">${level.title}</h3>
-      <p class="level-location">${level.locationName}</p>
-      ${isCompleted && state.postTestScores[level.id] !== undefined 
-        ? `<div class="level-score">📝 Post-Test: ${state.postTestScores[level.id]} poin</div>` 
-        : ''}
+      <div class="level-info">
+        <div class="level-name">Level ${level.id}: ${level.title}</div>
+        <div class="level-location">${level.locationName}</div>
+        ${scoreHTML}
+      </div>
     `;
 
     if (!isLocked) {
-      card.addEventListener('click', () => startLevel(level.id));
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => startLevel(level.id));
     }
 
-    container.appendChild(card);
+    pathContainer.appendChild(item);
   });
+
+  levelsContent.appendChild(pathContainer);
+  container.appendChild(levelsContent);
 }
 
 // ── Start Level ──────────────────────────────────────────────
