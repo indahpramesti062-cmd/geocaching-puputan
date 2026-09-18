@@ -79,73 +79,90 @@ function showPage(pageId) {
   }
 }
 
-// ── Level Map Renderer ───────────────────────────────────────
+// ── Level Map Renderer (Pixel Art) ───────────────────────────
 function renderLevelMap() {
   const container = document.getElementById('level-map-container');
   container.innerHTML = '';
 
-  // Create progress bar
   const completedCount = state.levelsCompleted.length;
   const totalCount = LEVELS.length;
-  const progressPercent = Math.round((completedCount / totalCount) * 100);
 
-  const progressHTML = `
-    <div class="levels-header">
-      <h2>Peta Perjalanan</h2>
-    </div>
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progressPercent}%"></div>
-      </div>
-      <span class="progress-text">${completedCount}/${totalCount} Level Selesai</span>
-    </div>
-    <div class="score-display">🏆 ${state.score} Poin</div>
+  // Hotspot positions (% from top of image) for each level
+  const hotspots = [
+    { id: 0, top: 6,  left: 10, label: 'PROLOG' },
+    { id: 1, top: 22, left: 48, label: 'PELABUHAN BATULAHAK' },
+    { id: 2, top: 38, left: 8,  label: 'PURA GOA LAWAH' },
+    { id: 3, top: 46, left: 42, label: 'PURI KUSANEGARA' },
+    { id: 4, top: 62, left: 8,  label: 'GELGEL' },
+    { id: 5, top: 74, left: 48, label: 'MONUMEN PUPUTAN' },
+    { id: 6, top: 88, left: 22, label: 'TUKAD UNDA' },
+  ];
+
+  // HUD bar
+  const hud = document.createElement('div');
+  hud.className = 'pixmap-hud';
+  hud.innerHTML = `
+    <div class="pixmap-hud-item">🏆 <strong>${state.score}</strong></div>
+    <div class="pixmap-hud-item">✅ <strong>${completedCount}/${totalCount}</strong></div>
   `;
+  container.appendChild(hud);
 
-  const levelsContent = document.createElement('div');
-  levelsContent.className = 'levels-content';
-  levelsContent.innerHTML = progressHTML;
+  // Map wrapper with background
+  const mapWrapper = document.createElement('div');
+  mapWrapper.className = 'pixmap-wrapper';
 
-  // Create level path
-  const pathContainer = document.createElement('div');
-  pathContainer.className = 'level-path-container';
+  // Image
+  const img = document.createElement('img');
+  img.src = 'img/map-bg.jpg';
+  img.alt = 'Peta Perjalanan';
+  img.className = 'pixmap-bg';
+  mapWrapper.appendChild(img);
 
-  LEVELS.forEach(level => {
-    const isCompleted = state.levelsCompleted.includes(level.id);
-    const isCurrent = level.id === state.currentLevel;
-    const isLocked = level.id > state.currentLevel;
+  // Overlay for hotspots
+  const overlay = document.createElement('div');
+  overlay.className = 'pixmap-overlay';
 
-    const item = document.createElement('div');
-    item.className = `level-item ${isCompleted ? 'completed' : ''} ${isCurrent ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
+  hotspots.forEach(spot => {
+    const level = LEVELS.find(l => l.id === spot.id);
+    if (!level) return;
 
-    const nodeState = isCompleted ? 'completed' : isCurrent ? 'active' : 'locked';
-    const nodeIcon = isCompleted ? '✅' : isCurrent ? (level.hasGPS ? '📍' : '📖') : '🔒';
+    const isCompleted = state.levelsCompleted.includes(spot.id);
+    const isCurrent = spot.id === state.currentLevel;
+    const isLocked = spot.id > state.currentLevel;
+    const status = isCompleted ? 'completed' : isCurrent ? 'active' : 'locked';
 
-    const scoreHTML = isCompleted && state.postTestScores[level.id] !== undefined
-      ? `<div class="level-score-badge">📝 ${state.postTestScores[level.id]} poin</div>`
-      : '';
+    const hotspot = document.createElement('div');
+    hotspot.className = `pixmap-hotspot ${status}`;
+    hotspot.style.top = `${spot.top}%`;
+    hotspot.style.left = `${spot.left}%`;
 
-    item.innerHTML = `
-      <div class="level-node ${nodeState}">
-        <span class="node-icon">${nodeIcon}</span>
-      </div>
-      <div class="level-info">
-        <div class="level-name">Level ${level.id}: ${level.title}</div>
-        <div class="level-location">${level.locationName}</div>
-        ${scoreHTML}
-      </div>
+    const icon = isCompleted ? '✅' : isCurrent ? '📍' : '🔒';
+    const scoreHTML = isCompleted && state.postTestScores[spot.id] !== undefined
+      ? `<span class="pixmap-score">+${state.postTestScores[spot.id]}</span>` : '';
+
+    hotspot.innerHTML = `
+      <div class="pixmap-marker ${status}">${icon}</div>
+      <div class="pixmap-label">${spot.label} ${scoreHTML}</div>
     `;
 
-    if (!isLocked) {
-      item.style.cursor = 'pointer';
-      item.addEventListener('click', () => startLevel(level.id));
+    // Walking pixel character on current level
+    if (isCurrent) {
+      const walker = document.createElement('div');
+      walker.className = 'pixel-walker';
+      walker.innerHTML = '🚶';
+      hotspot.appendChild(walker);
     }
 
-    pathContainer.appendChild(item);
+    if (!isLocked) {
+      hotspot.style.cursor = 'pointer';
+      hotspot.addEventListener('click', () => startLevel(spot.id));
+    }
+
+    overlay.appendChild(hotspot);
   });
 
-  levelsContent.appendChild(pathContainer);
-  container.appendChild(levelsContent);
+  mapWrapper.appendChild(overlay);
+  container.appendChild(mapWrapper);
 }
 
 // ── Start Level ──────────────────────────────────────────────
