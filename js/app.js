@@ -79,90 +79,81 @@ function showPage(pageId) {
   }
 }
 
-// ── Level Map Renderer (Pixel Art) ───────────────────────────
+// ── Level Map Renderer ───────────────────────────────────────
+const LEVEL_THUMBS = ['🌍', '⚓', '🦇', '🏛️', '🏰', '🗿', '🌊'];
+
 function renderLevelMap() {
   const container = document.getElementById('level-map-container');
   container.innerHTML = '';
 
+  // Create progress bar
   const completedCount = state.levelsCompleted.length;
   const totalCount = LEVELS.length;
+  const progressPercent = Math.round((completedCount / totalCount) * 100);
 
-  // Hotspot positions (% from top of image) for each level
-  const hotspots = [
-    { id: 0, top: 6,  left: 10, label: 'PROLOG' },
-    { id: 1, top: 22, left: 48, label: 'PELABUHAN BATULAHAK' },
-    { id: 2, top: 38, left: 8,  label: 'PURA GOA LAWAH' },
-    { id: 3, top: 46, left: 42, label: 'PURI KUSANEGARA' },
-    { id: 4, top: 62, left: 8,  label: 'GELGEL' },
-    { id: 5, top: 74, left: 48, label: 'MONUMEN PUPUTAN' },
-    { id: 6, top: 88, left: 22, label: 'TUKAD UNDA' },
-  ];
-
-  // HUD bar
-  const hud = document.createElement('div');
-  hud.className = 'pixmap-hud';
-  hud.innerHTML = `
-    <div class="pixmap-hud-item">🏆 <strong>${state.score}</strong></div>
-    <div class="pixmap-hud-item">✅ <strong>${completedCount}/${totalCount}</strong></div>
+  const progressHTML = `
+    <div class="levels-header">
+      <h2>Peta Perjalanan</h2>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+      </div>
+      <span class="progress-text">${completedCount}/${totalCount} Level Selesai</span>
+    </div>
+    <div class="score-display">🏆 ${state.score} Poin</div>
   `;
-  container.appendChild(hud);
 
-  // Map wrapper with background
-  const mapWrapper = document.createElement('div');
-  mapWrapper.className = 'pixmap-wrapper';
+  const levelsContent = document.createElement('div');
+  levelsContent.className = 'levels-content';
+  levelsContent.innerHTML = progressHTML;
 
-  // Image
-  const img = document.createElement('img');
-  img.src = 'img/map-bg.jpg';
-  img.alt = 'Peta Perjalanan';
-  img.className = 'pixmap-bg';
-  mapWrapper.appendChild(img);
+  // Create level path
+  const pathContainer = document.createElement('div');
+  pathContainer.className = 'level-path-container';
 
-  // Overlay for hotspots
-  const overlay = document.createElement('div');
-  overlay.className = 'pixmap-overlay';
+  LEVELS.forEach(level => {
+    const isCompleted = state.levelsCompleted.includes(level.id);
+    const isCurrent = level.id === state.currentLevel;
+    const isLocked = level.id > state.currentLevel;
 
-  hotspots.forEach(spot => {
-    const level = LEVELS.find(l => l.id === spot.id);
-    if (!level) return;
+    const item = document.createElement('div');
+    item.className = `level-item ${isCompleted ? 'completed' : ''} ${isCurrent ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
 
-    const isCompleted = state.levelsCompleted.includes(spot.id);
-    const isCurrent = spot.id === state.currentLevel;
-    const isLocked = spot.id > state.currentLevel;
-    const status = isCompleted ? 'completed' : isCurrent ? 'active' : 'locked';
+    const nodeState = isCompleted ? 'completed' : isCurrent ? 'active' : 'locked';
+    const nodeIcon = isCompleted ? '✅' : isCurrent ? (level.hasGPS ? '📍' : '📖') : '🔒';
+    const thumbEmoji = LEVEL_THUMBS[level.id] || '📌';
+    const tagHTML = level.hasGPS
+      ? '<span class="level-tag">📡 GPS</span>'
+      : '<span class="level-tag prolog-tag">📖 Prolog</span>';
 
-    const hotspot = document.createElement('div');
-    hotspot.className = `pixmap-hotspot ${status}`;
-    hotspot.style.top = `${spot.top}%`;
-    hotspot.style.left = `${spot.left}%`;
+    const scoreHTML = isCompleted && state.postTestScores[level.id] !== undefined
+      ? `<div class="level-score-badge">📝 ${state.postTestScores[level.id]} poin</div>`
+      : '';
 
-    const icon = isCompleted ? '✅' : isCurrent ? '📍' : '🔒';
-    const scoreHTML = isCompleted && state.postTestScores[spot.id] !== undefined
-      ? `<span class="pixmap-score">+${state.postTestScores[spot.id]}</span>` : '';
-
-    hotspot.innerHTML = `
-      <div class="pixmap-marker ${status}">${icon}</div>
-      <div class="pixmap-label">${spot.label} ${scoreHTML}</div>
+    item.innerHTML = `
+      <div class="level-node ${nodeState}">
+        <span class="node-icon">${nodeIcon}</span>
+      </div>
+      <div class="level-info">
+        <div class="level-name">Level ${level.id}: ${level.title}</div>
+        <div class="level-location">${level.locationName}</div>
+        ${tagHTML}
+        ${scoreHTML}
+      </div>
+      <div class="level-thumb">${thumbEmoji}</div>
     `;
 
-    // Walking pixel character on current level
-    if (isCurrent) {
-      const walker = document.createElement('div');
-      walker.className = 'pixel-walker';
-      walker.innerHTML = '🚶';
-      hotspot.appendChild(walker);
-    }
-
     if (!isLocked) {
-      hotspot.style.cursor = 'pointer';
-      hotspot.addEventListener('click', () => startLevel(spot.id));
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => startLevel(level.id));
     }
 
-    overlay.appendChild(hotspot);
+    pathContainer.appendChild(item);
   });
 
-  mapWrapper.appendChild(overlay);
-  container.appendChild(mapWrapper);
+  levelsContent.appendChild(pathContainer);
+  container.appendChild(levelsContent);
 }
 
 // ── Start Level ──────────────────────────────────────────────
@@ -484,14 +475,31 @@ function confirmPosition() {
 }
 
 // ── Story Phase ──────────────────────────────────────────────
+const STORY_BANNERS = ['🌍', '⚓', '⚔️', '🏛️', '🔥', '🗡️', '🌊'];
+
 function showStory(levelId) {
   const level = LEVELS.find(l => l.id === levelId);
   if (!level) return;
 
   document.getElementById('story-level-title').textContent = `⚔️ ${level.title}`;
+
+  // Add photo banner before story text
+  const storyContent = document.querySelector('#page-story .story-content');
+  const existingBanner = storyContent.querySelector('.story-photo-banner');
+  if (existingBanner) existingBanner.remove();
+
+  const banner = document.createElement('div');
+  banner.className = 'story-photo-banner';
+  banner.innerHTML = `
+    <div class="story-photo-bg">${STORY_BANNERS[levelId] || '📜'}</div>
+    <span class="story-photo-label">📍 ${level.locationName}</span>
+  `;
+  const storyCard = storyContent.querySelector('.story-card');
+  storyContent.insertBefore(banner, storyCard);
+
   document.getElementById('story-text').innerHTML = level.story;
 
-  // Video section
+  // Video section — upgraded thumbnail cards
   const videoSection = document.getElementById('video-section');
   const videoLinks = document.getElementById('video-links');
   videoLinks.innerHTML = '';
@@ -501,15 +509,10 @@ function showStory(levelId) {
       const card = document.createElement('a');
       card.href = v.url;
       card.target = '_blank';
-      card.className = 'video-card';
+      card.className = 'video-thumb-card';
       card.innerHTML = `
-        <div class="video-thumb">
-          <div class="video-play-icon">▶</div>
-        </div>
-        <div class="video-info">
-          <div class="video-title">${v.title}</div>
-          <div class="video-source">YouTube</div>
-        </div>
+        <div class="video-play-icon">▶️</div>
+        <span class="video-thumb-title">${v.title}</span>
       `;
       videoLinks.appendChild(card);
     });
@@ -547,46 +550,41 @@ function showPostTest(levelId) {
 
   level.postTest.forEach((q, idx) => {
     const qDiv = document.createElement('div');
-    qDiv.className = 'quiz-card';
+    qDiv.className = 'glass-card pq-card';
 
     if (q.type === 'mc') {
       qDiv.innerHTML = `
-        <div class="quiz-question"><span class="quiz-number">${idx + 1}</span> ${q.question} <span style="color:var(--gold-pale);font-size:0.8rem">(${q.points} poin)</span></div>
-        <div class="quiz-options" id="pq-options-${idx}">
+        <div class="pq-question"><span class="pq-number">${idx + 1}</span>${q.question} <small style="color:var(--gold);opacity:0.7">(${q.points} poin)</small></div>
+        <div class="pq-options" id="pq-options-${idx}">
           ${q.options.map((opt, optIdx) => `
-            <div class="quiz-option" id="pq-opt-${idx}-${optIdx}" data-idx="${idx}" data-opt="${optIdx}">
-              <div class="quiz-radio"></div>
+            <div class="pq-option" id="pq-opt-${idx}-${optIdx}" onclick="selectOption(${idx}, ${optIdx})">
+              <div class="pq-radio"></div>
               <span>${opt}</span>
-              <input type="radio" name="pq-${idx}" value="${optIdx}" style="display:none">
             </div>
           `).join('')}
         </div>
       `;
     } else if (q.type === 'essay') {
       qDiv.innerHTML = `
-        <div class="quiz-question"><span class="quiz-number">${idx + 1}</span> ${q.question} <span style="color:var(--gold-pale);font-size:0.8rem">(${q.points} poin — esai)</span></div>
-        <div class="quiz-essay">
-          <textarea id="pq-essay-${idx}" placeholder="Tulis jawaban esai kamu di sini..." rows="4"></textarea>
-          <div style="font-size:0.75rem;color:var(--amber);margin-top:var(--space-xs)">💡 Jawaban esai akan direview manual oleh guru</div>
-        </div>
+        <div class="pq-question"><span class="pq-number">${idx + 1}</span>${q.question} <small style="color:var(--gold);opacity:0.7">(esai)</small></div>
+        <textarea class="pq-essay" id="pq-essay-${idx}" placeholder="Tulis jawaban esai kamu di sini..." rows="4"></textarea>
+        <div style="font-size:0.78rem;color:var(--amber);margin-top:var(--space-sm);opacity:0.8">💡 Jawaban esai akan direview manual oleh guru</div>
       `;
     }
 
     container.appendChild(qDiv);
   });
 
-  // Add click handlers for quiz options
-  container.querySelectorAll('.quiz-option').forEach(opt => {
-    opt.addEventListener('click', function() {
-      const idx = this.dataset.idx;
-      // Deselect siblings
-      document.querySelectorAll(`#pq-options-${idx} .quiz-option`).forEach(o => o.classList.remove('selected'));
-      this.classList.add('selected');
-      this.querySelector('input[type="radio"]').checked = true;
-    });
-  });
-
   showPage('page-posttest');
+}
+
+// Helper: select MC option (for div-based radio buttons)
+function selectOption(qIdx, optIdx) {
+  const options = document.querySelectorAll(`#pq-options-${qIdx} .pq-option`);
+  options.forEach((opt, i) => {
+    opt.classList.toggle('selected', i === optIdx);
+    opt.dataset.selected = (i === optIdx) ? 'true' : 'false';
+  });
 }
 
 function submitPostTest() {
@@ -603,12 +601,15 @@ function submitPostTest() {
     totalPoints += q.points;
 
     if (q.type === 'mc') {
-      const selected = document.querySelector(`input[name="pq-${idx}"]:checked`);
-      if (!selected) {
+      const options = document.querySelectorAll(`#pq-options-${idx} .pq-option`);
+      let selectedIdx = -1;
+      options.forEach((opt, i) => {
+        if (opt.classList.contains('selected')) selectedIdx = i;
+      });
+      if (selectedIdx === -1) {
         allAnswered = false;
         return;
       }
-      const selectedIdx = parseInt(selected.value);
       answers[idx] = { type: 'mc', selected: selectedIdx, correct: q.correct };
 
       if (selectedIdx === q.correct) {
