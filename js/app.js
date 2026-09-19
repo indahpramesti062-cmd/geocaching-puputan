@@ -498,12 +498,20 @@ function showStory(levelId) {
 
   if (level.videos && level.videos.length > 0) {
     level.videos.forEach(v => {
-      const link = document.createElement('a');
-      link.href = v.url;
-      link.target = '_blank';
-      link.className = 'video-link-card';
-      link.innerHTML = `<span class="video-icon">▶️</span> ${v.title}`;
-      videoLinks.appendChild(link);
+      const card = document.createElement('a');
+      card.href = v.url;
+      card.target = '_blank';
+      card.className = 'video-card';
+      card.innerHTML = `
+        <div class="video-thumb">
+          <div class="video-play-icon">▶</div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">${v.title}</div>
+          <div class="video-source">YouTube</div>
+        </div>
+      `;
+      videoLinks.appendChild(card);
     });
     videoSection.classList.remove('hidden');
   } else {
@@ -539,33 +547,43 @@ function showPostTest(levelId) {
 
   level.postTest.forEach((q, idx) => {
     const qDiv = document.createElement('div');
-    qDiv.className = 'posttest-question-card';
+    qDiv.className = 'quiz-card';
 
     if (q.type === 'mc') {
       qDiv.innerHTML = `
-        <div class="pq-number">Soal ${idx + 1} <span class="pq-points">(${q.points} poin)</span></div>
-        <div class="pq-text">${q.question}</div>
-        <div class="pq-options" id="pq-options-${idx}">
+        <div class="quiz-question"><span class="quiz-number">${idx + 1}</span> ${q.question} <span style="color:var(--gold-pale);font-size:0.8rem">(${q.points} poin)</span></div>
+        <div class="quiz-options" id="pq-options-${idx}">
           ${q.options.map((opt, optIdx) => `
-            <label class="pq-option" id="pq-opt-${idx}-${optIdx}">
-              <input type="radio" name="pq-${idx}" value="${optIdx}">
-              <span class="pq-option-text">${opt}</span>
-            </label>
+            <div class="quiz-option" id="pq-opt-${idx}-${optIdx}" data-idx="${idx}" data-opt="${optIdx}">
+              <div class="quiz-radio"></div>
+              <span>${opt}</span>
+              <input type="radio" name="pq-${idx}" value="${optIdx}" style="display:none">
+            </div>
           `).join('')}
         </div>
       `;
     } else if (q.type === 'essay') {
       qDiv.innerHTML = `
-        <div class="pq-number">Soal ${idx + 1} <span class="pq-points">(${q.points} poin — esai)</span></div>
-        <div class="pq-text">${q.question}</div>
-        <div class="pq-essay">
-          <textarea class="pq-textarea" id="pq-essay-${idx}" placeholder="Tulis jawaban esai kamu di sini..." rows="4"></textarea>
-          <div class="pq-essay-note">💡 Jawaban esai akan direview manual oleh guru</div>
+        <div class="quiz-question"><span class="quiz-number">${idx + 1}</span> ${q.question} <span style="color:var(--gold-pale);font-size:0.8rem">(${q.points} poin — esai)</span></div>
+        <div class="quiz-essay">
+          <textarea id="pq-essay-${idx}" placeholder="Tulis jawaban esai kamu di sini..." rows="4"></textarea>
+          <div style="font-size:0.75rem;color:var(--amber);margin-top:var(--space-xs)">💡 Jawaban esai akan direview manual oleh guru</div>
         </div>
       `;
     }
 
     container.appendChild(qDiv);
+  });
+
+  // Add click handlers for quiz options
+  container.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const idx = this.dataset.idx;
+      // Deselect siblings
+      document.querySelectorAll(`#pq-options-${idx} .quiz-option`).forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+      this.querySelector('input[type="radio"]').checked = true;
+    });
   });
 
   showPage('page-posttest');

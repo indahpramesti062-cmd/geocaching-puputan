@@ -9,81 +9,73 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Geocaching: Jejak Puputan Klungkung</title>
 
-  <!-- Leaflet.js CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-
-  <!-- Game CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 1: HOME / BERANDA
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: HOME ═══════════════ -->
   <div id="page-home" class="page">
-    <div class="home-content">
-      <div class="game-logo">⚔️️</div>
-      <h1 class="game-title">Jejak Puputan Klungkung</h1>
-      <p class="game-subtitle">Geocaching Bersejarah</p>
-
-      <div class="ornament">
-        <span class="ornament-icon">🏛️</span>
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+      <img src="img/hero-banner.jpg" alt="Candi Bentar Bali" class="hero-img">
+      <div class="hero-overlay"></div>
+      <div class="hero-text">
+        <div class="game-logo">⚔️</div>
+        <h1 class="game-title">Jejak Puputan<br>Klungkung</h1>
+        <p class="game-subtitle">Geocaching Bersejarah</p>
       </div>
+    </div>
+
+    <div class="home-content">
+      <div class="ornament"><span class="ornament-icon">🏛️</span></div>
 
       <p class="tagline">Telusuri 7 situs bersejarah Perang Kusamba & Puputan Klungkung di Kota Semarapura, Bali</p>
 
       <div class="info-section">
         <div class="glass-card info-card">
           <h3>📖 Tentang Game</h3>
-          <p>Game ini mengajak kamu menelusuri jejak perjuangan Kerajaan Klungkung melawan kolonialisme Belanda (1849–1908). Kunjungi lokasi-lokasi bersejarah secara langsung, pecahkan teka-teki, dan pelajari sejarah melalui narasi interaktif.</p>
+          <p>Game ini mengajak kamu menelusuri jejak perjuangan Kerajaan Klungkung melawan kolonialisme Belanda (1849–1908). Kunjungi lokasi-lokasi bersejarah, pecahkan teka-teki, dan pelajari sejarah melalui narasi interaktif.</p>
         </div>
         <div class="glass-card info-card">
           <h3>🗺️ Cara Bermain</h3>
           <p>1. Jawab clue/teka-teki untuk menemukan koordinat cache<br>
-             2. Gunakan GPS untuk navigasi ke lokasi cache<br>
+             2. Gunakan GPS untuk navigasi ke lokasi<br>
              3. Konfirmasi posisi saat jarak ≤30 meter<br>
              4. Baca materi sejarah & jawab post-test<br>
              5. Lanjut ke level berikutnya!</p>
         </div>
         <div class="glass-card info-card">
           <h3>⚠️ Persiapan</h3>
-          <p>Pastikan GPS/lokasi aktif di perangkat kamu. Game ini membutuhkan kunjungan langsung ke lokasi-lokasi di area Klungkung, Bali. Level 0 (Prolog) bisa dimainkan tanpa GPS.</p>
+          <p>Pastikan GPS/lokasi aktif. Game ini membutuhkan kunjungan langsung ke lokasi di area Klungkung, Bali. Level 0 (Prolog) bisa dimainkan tanpa GPS.</p>
         </div>
       </div>
 
-      <button id="btn-start" class="btn-primary">
-        🗺️ Mulai Petualangan
-      </button>
+      <button id="btn-start" class="btn-primary">🗺️ Mulai Petualangan</button>
 
       <div id="continue-section" class="hidden">
-        <button id="btn-continue" class="btn-secondary">
-          ▶️ Lanjutkan Progress
-        </button>
+        <button id="btn-continue" class="btn-secondary">▶️ Lanjutkan Progress</button>
       </div>
 
       <button id="btn-reset" class="btn-danger">🔄 Reset Progress</button>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 2: LEVEL MAP / PETA LEVEL
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: LEVELS ═══════════════ -->
   <div id="page-levels" class="page" style="display:none">
-    <div id="level-map-container">
-      <!-- Level map rendered by JS -->
-    </div>
-    <button id="btn-back-home" class="btn-danger" style="margin-top:var(--space-md)">← Kembali ke Beranda</button>
+    <div id="level-map-container"></div>
+    <button id="btn-back-home" class="btn-danger" style="margin:var(--space-md) auto;display:block">← Kembali ke Beranda</button>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 3: CLUE / TEKA-TEKI
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: CLUE ═══════════════ -->
   <div id="page-clue" class="page" style="display:none">
     <div class="clue-content">
       <div class="level-badge" id="clue-level-title">⚔️ Level 0</div>
-      
-      <div class="parchment-card">
+
+      <!-- Clue with compass watermark -->
+      <div class="parchment-card clue-card-enhanced">
+        <div class="compass-watermark">🧭</div>
         <div class="clue-text" id="clue-intro-text"></div>
         <div class="ornament"><span class="ornament-icon">🗝️</span></div>
         <div class="clue-text" id="clue-question-text" style="font-weight:600"></div>
@@ -105,16 +97,12 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 4: CACHE REVEAL / KOORDINAT
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: CACHE REVEAL ═══════════════ -->
   <div id="page-cache" class="page" style="display:none">
     <div class="cache-content">
       <h2 class="cache-title">📍 Cache Ditemukan!</h2>
-
       <div class="compass-card">
         <div class="cache-location-name" id="cache-location-name">📍 —</div>
-
         <div class="coordinate-display">
           <div class="coord-row">
             <span class="coord-label">Lat/Long (WGS84)</span>
@@ -126,31 +114,18 @@
           </div>
         </div>
       </div>
-
       <div class="cache-actions">
-        <a id="btn-alpine" class="btn-secondary" href="#" target="_blank">
-          🧭 Buka di Alpine Quest
-        </a>
-        <a id="btn-gmaps" class="btn-secondary" href="#" target="_blank">
-          🗺️ Buka di Google Maps
-        </a>
+        <a id="btn-alpine" class="btn-secondary" href="#" target="_blank">🧭 Buka di Alpine Quest</a>
+        <a id="btn-gmaps" class="btn-secondary" href="#" target="_blank">🗺️ Buka di Google Maps</a>
       </div>
-
-      <button id="btn-navigate" class="btn-primary">
-        🚶 Mulai Navigasi
-      </button>
+      <button id="btn-navigate" class="btn-primary">🚶 Mulai Navigasi</button>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 5: NAVIGATION / NAVIGASI GPS
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: NAVIGATION ═══════════════ -->
   <div id="page-nav" class="page" style="display:none">
     <div class="nav-content">
-      <!-- Back button -->
       <button id="btn-nav-back" class="nav-back-btn">←</button>
-
-      <!-- Navigation HUD -->
       <div class="nav-hud">
         <div class="hud-item">
           <span class="hud-label">Jarak</span>
@@ -169,124 +144,75 @@
           <span class="hud-value" id="nav-position" style="font-size:0.75rem">—</span>
         </div>
       </div>
-
-      <!-- Map -->
       <div id="map-container" class="map-container"></div>
-
-      <!-- GPS Status -->
-      <div class="gps-status" style="position:absolute;top:80px;right:var(--space-md);z-index:1001;">
+      <div class="gps-status" style="position:absolute;top:80px;right:var(--space-md);z-index:1001">
         <span class="gps-dot" id="gps-dot"></span>
         <span id="gps-status-text" style="font-size:0.7rem;color:var(--gold)">Mencari GPS...</span>
       </div>
-
-      <!-- Notification -->
-      <div id="nav-notification" class="nav-notification hidden">
-        ✅ Anda sudah dekat! Konfirmasi posisi Anda.
-      </div>
-
-      <!-- Bottom bar -->
+      <div id="nav-notification" class="nav-notification hidden"></div>
       <div class="nav-bottom">
-        <button id="btn-confirm" class="btn-primary" disabled>
-          📍 Konfirmasi Posisi
-        </button>
+        <button id="btn-confirm" class="btn-primary" disabled>📍 Konfirmasi Posisi</button>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 6: STORY / NARASI SEJARAH
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: STORY ═══════════════ -->
   <div id="page-story" class="page" style="display:none">
     <div class="story-content">
       <div class="story-header">
         <div class="level-badge" id="story-level-title">⚔️ Materi Sejarah</div>
       </div>
-
       <div class="parchment-card story-card">
         <div class="story-text" id="story-text"></div>
       </div>
-
       <div id="video-section" class="video-section hidden">
         <h3 class="video-section-title">🎬 Video Rekomendasi</h3>
         <div id="video-links" class="video-links"></div>
       </div>
-
       <div class="story-actions">
-        <button id="btn-to-posttest" class="btn-primary">
-          📝 Lanjut ke Post-Test
-        </button>
+        <button id="btn-to-posttest" class="btn-primary">📝 Lanjut ke Post-Test</button>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 7: POST-TEST / QUIZ
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: POST-TEST ═══════════════ -->
   <div id="page-posttest" class="page" style="display:none">
     <div class="posttest-container">
       <div class="level-badge" id="posttest-level-title">📝 Post-Test</div>
       <div class="score-display" id="posttest-score-display">🏆 0 Poin</div>
-
-      <div id="posttest-questions" class="posttest-questions">
-        <!-- Questions rendered by JS -->
-      </div>
-
+      <div id="posttest-questions" class="posttest-questions"></div>
       <div id="posttest-result" class="posttest-result hidden">
         <div class="glass-card posttest-result-card">
           <div class="result-icon" id="posttest-result-icon">🎯</div>
-          <div class="result-text" id="posttest-result-text">Hasil Post-Test</div>
-          <div class="result-score" id="posttest-result-score">0/0</div>
+          <div class="result-text" id="posttest-result-text"></div>
+          <div class="result-score" id="posttest-result-score"></div>
         </div>
       </div>
-
-      <button id="btn-submit-posttest" class="btn-primary">
-        ✅ Submit Jawaban
-      </button>
-
-      <button id="btn-next-level" class="btn-primary hidden">
-        ➡️ Level Berikutnya
-      </button>
+      <button id="btn-submit-posttest" class="btn-primary">✅ Submit Jawaban</button>
+      <button id="btn-next-level" class="btn-primary hidden">➡️ Level Berikutnya</button>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       PAGE 8: COMPLETION / SELESAI
-       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════ PAGE: COMPLETION ═══════════════ -->
   <div id="page-complete" class="page" style="display:none">
     <div class="complete-content">
       <div class="trophy-icon">🏆</div>
       <h2 class="complete-title">Perjalanan Selesai!</h2>
-
       <div class="glass-card score-card">
         <div class="final-score" id="final-score">0 Poin</div>
       </div>
-
       <div class="parchment-card closing-card" id="complete-narrative"></div>
-
-      <div class="glass-card" id="complete-stats">
-        <!-- Stats rendered by JS -->
-      </div>
-
+      <div class="glass-card" id="complete-stats"></div>
       <div class="complete-actions">
-        <button id="btn-replay" class="btn-secondary">
-          🔄 Main Ulang
-        </button>
-        <button id="btn-share" class="btn-primary">
-          📤 Bagikan Hasil
-        </button>
+        <button id="btn-replay" class="btn-secondary">🔄 Main Ulang</button>
+        <button id="btn-share" class="btn-primary">📤 Bagikan Hasil</button>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       TOAST NOTIFICATIONS
-       ═══════════════════════════════════════════════════════════ -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       SCRIPTS
-       ═══════════════════════════════════════════════════════════ -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="js/data.js"></script>
   <script src="js/geo.js"></script>
