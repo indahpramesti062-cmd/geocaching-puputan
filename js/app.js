@@ -475,7 +475,6 @@ function confirmPosition() {
 }
 
 // ── Story Phase ──────────────────────────────────────────────
-const STORY_BANNERS = ['🌍', '⚓', '⚔️', '🏛️', '🔥', '🗡️', '🌊'];
 
 function showStory(levelId) {
   const level = LEVELS.find(l => l.id === levelId);
@@ -491,7 +490,7 @@ function showStory(levelId) {
   const banner = document.createElement('div');
   banner.className = 'story-photo-banner';
   banner.innerHTML = `
-    <div class="story-photo-bg">${STORY_BANNERS[levelId] || '📜'}</div>
+    <img src="img/loc-${levelId}.jpg" alt="${level.locationName}" class="story-photo-img">
     <span class="story-photo-label">📍 ${level.locationName}</span>
   `;
   const storyCard = storyContent.querySelector('.story-card');
