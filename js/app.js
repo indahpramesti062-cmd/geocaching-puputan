@@ -476,6 +476,17 @@ function confirmPosition() {
 
 // ── Story Phase ──────────────────────────────────────────────
 
+// Real photos from Wikimedia Commons (CC BY-SA)
+const LOCATION_PHOTOS = {
+  0: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/COLLECTIE_TROPENMUSEUM_Gezicht_op_de_haven_van_Padangbai_met_boten_TMnr_60054805.jpg/800px-COLLECTIE_TROPENMUSEUM_Gezicht_op_de_haven_van_Padangbai_met_boten_TMnr_60054805.jpg',
+  1: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Salt_maker_of_kusamba%2Cbali.jpg/800px-Salt_maker_of_kusamba%2Cbali.jpg',
+  2: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Goa_Lawah_Bali53.jpg/800px-Goa_Lawah_Bali53.jpg',
+  3: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Kerta_Gosa%2C_Klungkung%2C_Bali_%286924493746%29.jpg/800px-Kerta_Gosa%2C_Klungkung%2C_Bali_%286924493746%29.jpg',
+  4: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Pura_Dasar_Buana_Gelgel_-_panoramio.jpg/800px-Pura_Dasar_Buana_Gelgel_-_panoramio.jpg',
+  5: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Monumen_Puputan_Klungkung_-_panoramio.jpg/800px-Monumen_Puputan_Klungkung_-_panoramio.jpg',
+  6: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Tukad_unda_03.jpg/800px-Tukad_unda_03.jpg'
+};
+
 function showStory(levelId) {
   const level = LEVELS.find(l => l.id === levelId);
   if (!level) return;
@@ -487,10 +498,11 @@ function showStory(levelId) {
   const existingBanner = storyContent.querySelector('.story-photo-banner');
   if (existingBanner) existingBanner.remove();
 
+  const photoUrl = LOCATION_PHOTOS[levelId] || '';
   const banner = document.createElement('div');
   banner.className = 'story-photo-banner';
   banner.innerHTML = `
-    <img src="img/loc-${levelId}.jpg" alt="${level.locationName}" class="story-photo-img">
+    <img src="${photoUrl}" alt="${level.locationName}" class="story-photo-img" loading="lazy" crossorigin="anonymous">
     <span class="story-photo-label">📍 ${level.locationName}</span>
   `;
   const storyCard = storyContent.querySelector('.story-card');
