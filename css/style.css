@@ -75,7 +75,16 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: var(--bg-gradient);
+  background-color: #0b091a;
+  background-image:
+    /* Ambient warm gold dawn pool */
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(218, 165, 32, 0.14) 0%, transparent 60%),
+    /* Deep royal crimson dusk glow */
+    radial-gradient(circle at 10% 90%, rgba(139, 0, 0, 0.22) 0%, transparent 50%),
+    /* Night purple ambient aura */
+    radial-gradient(circle at 90% 40%, rgba(48, 43, 99, 0.45) 0%, transparent 55%),
+    /* Base multi-stop deep royal celestial gradient */
+    linear-gradient(165deg, #090717 0%, #171333 30%, #211c47 60%, #0d0a21 100%);
   background-attachment: fixed;
   color: var(--ivory);
   min-height: 100vh;
@@ -85,27 +94,42 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animated background particles */
+/* Global Seamless Cartographic & Balinese Mandala Texture */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 50h100M50 0v100' stroke='%23DAA520' stroke-width='0.5' stroke-dasharray='3,7' stroke-opacity='0.08'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='%23DAA520' stroke-width='0.6' stroke-opacity='0.11'/%3E%3Ccircle cx='50' cy='50' r='36' fill='none' stroke='%23DAA520' stroke-width='0.4' stroke-dasharray='2,6' stroke-opacity='0.08'/%3E%3Cpath d='M50 26 L53 47 L74 50 L53 53 L50 74 L47 53 L26 50 L47 47 Z' fill='%23DAA520' fill-opacity='0.08'/%3E%3Cpath d='M50 33 L52 48 L67 50 L52 52 L50 67 L48 52 L33 50 L48 48 Z' fill='%23FFD700' fill-opacity='0.1'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%23DAA520' fill-opacity='0.18'/%3E%3Cpolygon points='0,6 6,0 0,0' fill='%23DAA520' fill-opacity='0.06'/%3E%3Cpolygon points='100,6 94,0 100,0' fill='%23DAA520' fill-opacity='0.06'/%3E%3Cpolygon points='0,94 6,100 0,100' fill='%23DAA520' fill-opacity='0.06'/%3E%3Cpolygon points='100,94 94,100 100,100' fill='%23DAA520' fill-opacity='0.06'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.95;
+}
+
+/* Animated Golden Temple Embers & Stardust */
 body::before {
   content: '';
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: 
-    radial-gradient(2px 2px at 20% 30%, rgba(218,165,32,0.15), transparent),
-    radial-gradient(2px 2px at 40% 70%, rgba(218,165,32,0.1), transparent),
-    radial-gradient(2px 2px at 60% 20%, rgba(240,165,0,0.1), transparent),
-    radial-gradient(2px 2px at 80% 60%, rgba(218,165,32,0.12), transparent),
-    radial-gradient(1px 1px at 10% 80%, rgba(255,215,0,0.08), transparent),
-    radial-gradient(1px 1px at 90% 40%, rgba(255,215,0,0.08), transparent);
+    radial-gradient(2px 2px at 15% 25%, rgba(255, 215, 0, 0.25), transparent),
+    radial-gradient(2.5px 2.5px at 35% 75%, rgba(218, 165, 32, 0.22), transparent),
+    radial-gradient(3px 3px at 55% 15%, rgba(255, 223, 100, 0.25), transparent),
+    radial-gradient(2px 2px at 75% 65%, rgba(218, 165, 32, 0.2), transparent),
+    radial-gradient(2px 2px at 85% 35%, rgba(255, 215, 0, 0.22), transparent),
+    radial-gradient(3px 3px at 25% 85%, rgba(240, 165, 0, 0.18), transparent),
+    radial-gradient(1.5px 1.5px at 65% 85%, rgba(255, 255, 255, 0.18), transparent),
+    radial-gradient(1.5px 1.5px at 90% 10%, rgba(255, 215, 0, 0.22), transparent);
   pointer-events: none;
   z-index: 0;
-  animation: floatParticles 20s ease-in-out infinite alternate;
+  animation: floatParticles 25s ease-in-out infinite alternate;
 }
 
 @keyframes floatParticles {
   0% { transform: translateY(0); }
-  100% { transform: translateY(-30px); }
+  100% { transform: translateY(-40px); }
 }
 
 /* ── Typography ───────────────────────────────────────────── */
@@ -142,6 +166,12 @@ a:hover { color: var(--gold-light); }
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.5s ease, transform 0.5s ease;
+  overflow-x: hidden;
+}
+
+.page > * {
+  position: relative;
+  z-index: 2;
 }
 
 .page.active {
@@ -2138,31 +2168,134 @@ a:hover { color: var(--gold-light); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   BALINESE MOTIF BACKGROUND PATTERN
+   THEMATIC PER-PAGE BACKGROUND ACCENTS (Watermarks & Heritage Motifs)
    ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. BERANDA (#page-home): Balinese Candi Bentar Split-Gate ── */
 #page-home::after {
   content: '';
-  position: fixed;
-  bottom: 0; left: 0;
-  width: 100%; height: 200px;
-  background: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 20px,
-      rgba(218, 165, 32, 0.015) 20px,
-      rgba(218, 165, 32, 0.015) 21px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 20px,
-      rgba(218, 165, 32, 0.015) 20px,
-      rgba(218, 165, 32, 0.015) 21px
-    );
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(780px, 100vw);
+  height: 280px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 350'%3E%3Cg fill='%23DAA520' fill-opacity='0.08'%3E%3Cpath d='M260 350 L260 180 L280 180 L280 150 L300 150 L300 110 L320 110 L320 70 L340 70 L340 30 L360 30 L360 0 L375 0 L375 350 Z'/%3E%3Cpath d='M540 350 L540 180 L520 180 L520 150 L500 150 L500 110 L480 110 L480 70 L460 70 L460 30 L440 30 L440 0 L425 0 L425 350 Z'/%3E%3Cpath d='M190 350 L190 220 L220 220 L220 350 Z' fill-opacity='0.05'/%3E%3Cpath d='M610 350 L610 220 L580 220 L580 350 Z' fill-opacity='0.05'/%3E%3Cpath d='M130 350 L130 250 L160 250 L160 350 Z' fill-opacity='0.04'/%3E%3Cpath d='M670 350 L670 250 L640 250 L640 350 Z' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
   pointer-events: none;
   z-index: 0;
-  mask-image: linear-gradient(transparent, rgba(0,0,0,0.5));
-  -webkit-mask-image: linear-gradient(transparent, rgba(0,0,0,0.5));
+  mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 85%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 85%);
+}
+
+/* ── 2. PETA PERJALANAN (#page-levels): Grand Nautical Compass Rose ── */
+#page-levels::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(580px, 94vw);
+  height: min(580px, 94vw);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23DAA520' stop-opacity='0.16'/%3E%3Cstop offset='70%25' stop-color='%23DAA520' stop-opacity='0.08'/%3E%3Cstop offset='100%25' stop-color='%23DAA520' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='250' cy='250' r='245' fill='url(%23g)'/%3E%3Ccircle cx='250' cy='250' r='230' fill='none' stroke='%23DAA520' stroke-width='1.5' stroke-opacity='0.22'/%3E%3Ccircle cx='250' cy='250' r='222' fill='none' stroke='%23DAA520' stroke-width='0.8' stroke-dasharray='3,5' stroke-opacity='0.25'/%3E%3Ccircle cx='250' cy='250' r='180' fill='none' stroke='%23DAA520' stroke-width='1' stroke-opacity='0.18'/%3E%3Ccircle cx='250' cy='250' r='130' fill='none' stroke='%23DAA520' stroke-width='0.8' stroke-dasharray='4,6' stroke-opacity='0.2'/%3E%3Ccircle cx='250' cy='250' r='70' fill='none' stroke='%23DAA520' stroke-width='1' stroke-opacity='0.22'/%3E%3Cpath d='M250 20 L262 238 L480 250 L262 262 L250 480 L238 262 L20 250 L238 238 Z' fill='%23DAA520' fill-opacity='0.1' stroke='%23FFD700' stroke-width='0.8' stroke-opacity='0.25'/%3E%3Cpath d='M250 20 L262 238 L250 250 Z' fill='%23FFD700' fill-opacity='0.18'/%3E%3Cpath d='M480 250 L262 262 L250 250 Z' fill='%23FFD700' fill-opacity='0.18'/%3E%3Cpath d='M250 480 L238 262 L250 250 Z' fill='%23FFD700' fill-opacity='0.18'/%3E%3Cpath d='M20 250 L238 238 L250 250 Z' fill='%23FFD700' fill-opacity='0.18'/%3E%3Cpath d='M87 87 L241 241 L413 87 L259 241 L413 413 L259 259 L87 413 L241 259 Z' fill='%23DAA520' fill-opacity='0.06' stroke='%23DAA520' stroke-width='0.6' stroke-opacity='0.2'/%3E%3Cpath d='M250 0 L258 20 L242 20 Z' fill='%23FFD700' fill-opacity='0.45'/%3E%3Ctext x='250' y='60' text-anchor='middle' fill='%23FFD700' font-family='serif' font-size='22' font-weight='bold' fill-opacity='0.38'%3EU%3C/text%3E%3Ctext x='440' y='257' text-anchor='middle' fill='%23FFD700' font-family='serif' font-size='20' font-weight='bold' fill-opacity='0.38'%3ET%3C/text%3E%3Ctext x='250' y='450' text-anchor='middle' fill='%23FFD700' font-family='serif' font-size='20' font-weight='bold' fill-opacity='0.38'%3ES%3C/text%3E%3Ctext x='60' y='257' text-anchor='middle' fill='%23FFD700' font-family='serif' font-size='20' font-weight='bold' fill-opacity='0.38'%3EB%3C/text%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.95;
+}
+
+/* ── 3. TEKA-TEKI (#page-clue): Ancient Scroll & Astadala Lotus ── */
+#page-clue::before {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(480px, 90vw);
+  height: 480px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Ccircle cx='150' cy='150' r='130' fill='none' stroke='%23DAA520' stroke-width='1' stroke-dasharray='4,6' stroke-opacity='0.14'/%3E%3Ccircle cx='150' cy='150' r='90' fill='none' stroke='%23DAA520' stroke-width='0.8' stroke-opacity='0.16'/%3E%3Cpath d='M150 40 L160 140 L260 150 L160 160 L150 260 L140 160 L40 150 L140 140 Z' fill='%23DAA520' fill-opacity='0.06'/%3E%3Ccircle cx='150' cy='150' r='25' fill='none' stroke='%23FFD700' stroke-width='1.5' stroke-opacity='0.22'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 4. CACHE DISCOVERY (#page-cache): Geodetic Discovery Target Rings ── */
+#page-cache::before {
+  content: '';
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(500px, 95vw);
+  height: 500px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='180' fill='none' stroke='%23DAA520' stroke-width='1' stroke-opacity='0.14'/%3E%3Ccircle cx='200' cy='200' r='140' fill='none' stroke='%23DAA520' stroke-width='0.8' stroke-dasharray='5,5' stroke-opacity='0.18'/%3E%3Ccircle cx='200' cy='200' r='90' fill='none' stroke='%23DAA520' stroke-width='1' stroke-opacity='0.22'/%3E%3Ccircle cx='200' cy='200' r='40' fill='none' stroke='%23FFD700' stroke-width='1.2' stroke-opacity='0.28'/%3E%3Cline x1='20' y1='200' x2='380' y2='200' stroke='%23DAA520' stroke-width='0.8' stroke-dasharray='4,6' stroke-opacity='0.16'/%3E%3Cline x1='200' y1='20' x2='200' y2='380' stroke='%23DAA520' stroke-width='0.8' stroke-dasharray='4,6' stroke-opacity='0.16'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 5. MATERI SEJARAH (#page-story): Balinese Sacred Padma Relief ── */
+#page-story::before {
+  content: '';
+  position: absolute;
+  top: 280px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(540px, 92vw);
+  height: 540px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cg fill='%23DAA520' fill-opacity='0.06'%3E%3Ccircle cx='200' cy='200' r='170' fill='none' stroke='%23DAA520' stroke-width='1.2' stroke-opacity='0.15'/%3E%3Ccircle cx='200' cy='200' r='150' fill='none' stroke='%23DAA520' stroke-width='0.8' stroke-dasharray='3,6' stroke-opacity='0.13'/%3E%3Cpath d='M200 40 Q220 120 200 200 Q180 120 200 40 Z'/%3E%3Cpath d='M200 360 Q220 280 200 200 Q180 280 200 360 Z'/%3E%3Cpath d='M40 200 Q120 220 200 200 Q120 180 40 200 Z'/%3E%3Cpath d='M360 200 Q280 220 200 200 Q280 180 360 200 Z'/%3E%3Cpath d='M87 87 Q150 150 200 200 Q150 150 87 87 Z'/%3E%3Cpath d='M313 87 Q250 150 200 200 Q250 150 313 87 Z'/%3E%3Cpath d='M87 313 Q150 250 200 200 Q150 250 87 313 Z'/%3E%3Cpath d='M313 313 Q250 250 200 200 Q250 250 313 313 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 6. POST-TEST (#page-posttest): Sacred Mandala Seal of Wisdom ── */
+#page-posttest::before {
+  content: '';
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, 92vw);
+  height: 520px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='180' fill='none' stroke='%23DAA520' stroke-width='1' stroke-opacity='0.14'/%3E%3Ccircle cx='200' cy='200' r='120' fill='none' stroke='%23DAA520' stroke-width='0.8' stroke-dasharray='4,6' stroke-opacity='0.16'/%3E%3Cpolygon points='200,30 347,115 347,285 200,370 53,285 53,115' fill='none' stroke='%23DAA520' stroke-width='1.2' stroke-opacity='0.14'/%3E%3Cpolygon points='200,50 330,125 330,275 200,350 70,275 70,125' fill='%23DAA520' fill-opacity='0.04'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 7. SELESAI (#page-complete): Radiant Sunburst Halo of Glory ── */
+#page-complete::before {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(600px, 100vw);
+  height: 600px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cg fill='%23FFD700' fill-opacity='0.06'%3E%3Ccircle cx='250' cy='250' r='120' fill-opacity='0.08'/%3E%3Cpath d='M250 50 L260 250 L240 250 Z'/%3E%3Cpath d='M250 450 L260 250 L240 250 Z'/%3E%3Cpath d='M50 250 L250 260 L250 240 Z'/%3E%3Cpath d='M450 250 L250 260 L250 240 Z'/%3E%3Cpath d='M108 108 L257 243 L243 257 Z'/%3E%3Cpath d='M392 392 L257 243 L243 257 Z'/%3E%3Cpath d='M392 108 L257 257 L243 243 Z'/%3E%3Cpath d='M108 392 L257 257 L243 243 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+  animation: sunburstSpin 60s linear infinite;
+}
+
+@keyframes sunburstSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
