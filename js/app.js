@@ -19,6 +19,7 @@ let state = {
   levelTimes: {},
   postTestScores: {},
   postTestAnswers: {},
+  maxUnlocked: 0,
   started: false
 };
 
@@ -57,9 +58,11 @@ function resetState() {
     levelTimes: {},
     postTestScores: {},
     postTestAnswers: {},
+    maxUnlocked: 0,
     started: false
   };
   saveState();
+  if (typeof PixelMap !== 'undefined') PixelMap.resetAvatar();
 }
 
 // ── Page Router ──────────────────────────────────────────────
@@ -79,81 +82,25 @@ function showPage(pageId) {
   }
 }
 
-// ── Level Map Renderer ───────────────────────────────────────
-const LEVEL_THUMBS = ['🌍', '⚓', '🦇', '🏛️', '🏰', '🗿', '🌊'];
-
+// ── Level Map Renderer (Pixel Art — lihat js/pixelmap.js) ────
 function renderLevelMap() {
   const container = document.getElementById('level-map-container');
-  container.innerHTML = '';
 
-  // Create progress bar
-  const completedCount = state.levelsCompleted.length;
-  const totalCount = LEVELS.length;
-  const progressPercent = Math.round((completedCount / totalCount) * 100);
+  // Simpan level tertinggi yang pernah terbuka, supaya membuka ulang
+  // level lama tidak mengunci kembali level setelahnya.
+  state.maxUnlocked = Math.max(state.maxUnlocked || 0, state.currentLevel);
+  saveState();
 
-  const progressHTML = `
-    <div class="levels-header">
-      <h2>Peta Perjalanan</h2>
-    </div>
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progressPercent}%"></div>
-      </div>
-      <span class="progress-text">${completedCount}/${totalCount} Level Selesai</span>
-    </div>
-    <div class="score-display">🏆 ${state.score} Poin</div>
-  `;
-
-  const levelsContent = document.createElement('div');
-  levelsContent.className = 'levels-content';
-  levelsContent.innerHTML = progressHTML;
-
-  // Create level path
-  const pathContainer = document.createElement('div');
-  pathContainer.className = 'level-path-container';
-
-  LEVELS.forEach(level => {
-    const isCompleted = state.levelsCompleted.includes(level.id);
-    const isCurrent = level.id === state.currentLevel;
-    const isLocked = level.id > state.currentLevel;
-
-    const item = document.createElement('div');
-    item.className = `level-item ${isCompleted ? 'completed' : ''} ${isCurrent ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
-
-    const nodeState = isCompleted ? 'completed' : isCurrent ? 'active' : 'locked';
-    const nodeIcon = isCompleted ? '✅' : isCurrent ? (level.hasGPS ? '📍' : '📖') : '🔒';
-    const thumbEmoji = LEVEL_THUMBS[level.id] || '📌';
-    const tagHTML = level.hasGPS
-      ? '<span class="level-tag">📡 GPS</span>'
-      : '<span class="level-tag prolog-tag">📖 Prolog</span>';
-
-    const scoreHTML = isCompleted && state.postTestScores[level.id] !== undefined
-      ? `<div class="level-score-badge">📝 ${state.postTestScores[level.id]} poin</div>`
-      : '';
-
-    item.innerHTML = `
-      <div class="level-node ${nodeState}">
-        <span class="node-icon">${nodeIcon}</span>
-      </div>
-      <div class="level-info">
-        <div class="level-name">Level ${level.id}: ${level.title}</div>
-        <div class="level-location">${level.locationName}</div>
-        ${tagHTML}
-        ${scoreHTML}
-      </div>
-      <div class="level-thumb">${thumbEmoji}</div>
-    `;
-
-    if (!isLocked) {
-      item.style.cursor = 'pointer';
-      item.addEventListener('click', () => startLevel(level.id));
-    }
-
-    pathContainer.appendChild(item);
+  PixelMap.render(container, {
+    levels: LEVELS,
+    completed: state.levelsCompleted,
+    unlockedUpTo: state.maxUnlocked,
+    postTestScores: state.postTestScores,
+    score: state.score,
+    onSelect: (levelId) => startLevel(levelId),
+    onFinish: () => showCompletion(),
+    onLocked: (msg) => showToast(msg, 'warning')
   });
-
-  levelsContent.appendChild(pathContainer);
-  container.appendChild(levelsContent);
 }
 
 // ── Start Level ──────────────────────────────────────────────
