@@ -15,6 +15,7 @@
 
   <!-- Game CSS -->
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pixel-theme.css">
   <link rel="stylesheet" href="css/pixelmap.css">
 </head>
 <body>
@@ -23,27 +24,23 @@
        PAGE 1: HOME / BERANDA
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-home" class="page">
-    <div class="hero-banner">
-      <img src="img/hero-banner.jpg" alt="Candi Bentar Bali" loading="eager">
-    </div>
     <div class="home-content">
-      <div class="game-logo">⚔️</div>
-      <h1 class="game-title">Jejak Puputan Klungkung</h1>
-      <p class="game-subtitle">Geocaching Bersejarah</p>
-
-      <div class="ornament">
-        <span class="ornament-icon">🏛️</span>
+      <div class="px-logo">
+        <div class="px-logo-kicker">GEOCACHING BERSEJARAH</div>
+        <h1 class="game-title">Jejak Puputan Klungkung</h1>
       </div>
+
+      <div class="px-hero" id="px-hero"></div>
 
       <p class="tagline">Telusuri 7 situs bersejarah Perang Kusamba & Puputan Klungkung di Kota Semarapura, Bali</p>
 
       <div class="info-section">
         <div class="glass-card info-card">
-          <h3>📖 Tentang Game</h3>
+          <h3><i class="px-ico" data-ico="book"></i> Tentang Game</h3>
           <p>Game ini mengajak kamu menelusuri jejak perjuangan Kerajaan Klungkung melawan kolonialisme Belanda (1849–1908). Kunjungi lokasi-lokasi bersejarah, pecahkan teka-teki, dan pelajari sejarah melalui narasi interaktif.</p>
         </div>
         <div class="glass-card info-card">
-          <h3>🗺️ Cara Bermain</h3>
+          <h3><i class="px-ico" data-ico="map"></i> Cara Bermain</h3>
           <ol>
             <li>Jawab clue/teka-teki untuk temukan koordinat cache</li>
             <li>Gunakan GPS untuk navigasi ke lokasi</li>
@@ -53,22 +50,22 @@
           </ol>
         </div>
         <div class="glass-card info-card">
-          <h3>⚠️ Persiapan</h3>
+          <h3><i class="px-ico" data-ico="warn"></i> Persiapan</h3>
           <p>Pastikan GPS/lokasi aktif di perangkat kamu. Game ini membutuhkan kunjungan langsung ke lokasi-lokasi di area Klungkung, Bali. Level 0 (Prolog) bisa dimainkan tanpa GPS.</p>
         </div>
       </div>
 
       <button id="btn-start" class="btn-primary">
-        🗺️ Mulai Petualangan
+        <i class="px-ico" data-ico="play"></i> Mulai Petualangan
       </button>
 
       <div id="continue-section" class="hidden">
         <button id="btn-continue" class="btn-secondary">
-          ▶️ Lanjutkan Progress
+          <i class="px-ico" data-ico="next"></i> Lanjutkan Progress
         </button>
       </div>
 
-      <button id="btn-reset" class="btn-danger">🔄 Reset Progress</button>
+      <button id="btn-reset" class="btn-danger"><i class="px-ico" data-ico="replay"></i> Reset Progress</button>
     </div>
   </div>
 
@@ -87,25 +84,26 @@
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-clue" class="page" style="display:none">
     <div class="clue-content">
-      <div class="level-badge" id="clue-level-title">⚔️ Level 0</div>
-      
+      <div class="level-badge" id="clue-level-title">LEVEL 0</div>
+
+      <div id="clue-dialog" class="px-dialog-slot"></div>
+
       <div class="parchment-card">
-        <div class="clue-text" id="clue-intro-text"></div>
-        <div class="ornament"><span class="ornament-icon">🗝️</span></div>
+        <div class="px-parch-title"><i class="px-ico" data-ico="key"></i> TEKA-TEKI</div>
         <div class="clue-text" id="clue-question-text" style="font-weight:600"></div>
       </div>
 
       <div class="answer-section">
         <input type="text" id="answer-input" class="answer-input" placeholder="Ketik jawaban..." autocomplete="off">
-        <button id="btn-check" class="btn-primary">🔍 Periksa Jawaban</button>
+        <button id="btn-check" class="btn-primary"><i class="px-ico" data-ico="search"></i> Periksa Jawaban</button>
       </div>
 
       <div id="hint-section" class="hint-section">
-        <button id="btn-hint" class="btn-danger">💡 Gunakan Hint</button>
+        <button id="btn-hint" class="btn-danger"><i class="px-ico" data-ico="bulb"></i> Gunakan Hint</button>
         <div id="hint-text" class="hint-text hidden"></div>
       </div>
 
-      <div class="timer-display" id="clue-timer">00:00</div>
+      <div class="timer-display"><i class="px-ico" data-ico="clock"></i><span id="clue-timer">00:00</span></div>
 
       <button id="btn-back-levels" class="btn-danger">← Kembali ke Peta</button>
     </div>
@@ -116,10 +114,14 @@
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-cache" class="page" style="display:none">
     <div class="cache-content">
-      <h2 class="cache-title">📍 Cache Ditemukan!</h2>
+      <h2 class="cache-title">Cache Ditemukan!</h2>
+
+      <div class="px-cache-art" id="px-cache-art"></div>
+
+      <div id="cache-dialog" class="px-dialog-slot"></div>
 
       <div class="compass-card">
-        <div class="cache-location-name" id="cache-location-name">📍 —</div>
+        <div class="cache-location-name" id="cache-location-name">—</div>
 
         <div class="coordinate-display">
           <div class="coord-row">
@@ -135,15 +137,15 @@
 
       <div class="cache-actions">
         <a id="btn-alpine" class="btn-secondary" href="#" target="_blank">
-          🧭 Buka di Alpine Quest
+          <i class="px-ico" data-ico="compass"></i> Buka di Alpine Quest
         </a>
         <a id="btn-gmaps" class="btn-secondary" href="#" target="_blank">
-          🗺️ Buka di Google Maps
+          <i class="px-ico" data-ico="map"></i> Buka di Google Maps
         </a>
       </div>
 
       <button id="btn-navigate" class="btn-primary">
-        🚶 Mulai Navigasi
+        <i class="px-ico" data-ico="compass"></i> Mulai Navigasi
       </button>
     </div>
   </div>
@@ -154,7 +156,7 @@
   <div id="page-nav" class="page" style="display:none">
     <div class="nav-content">
       <!-- Back button -->
-      <button id="btn-nav-back" class="nav-back-btn">←</button>
+      <button id="btn-nav-back" class="nav-back-btn" aria-label="Kembali ke koordinat"><i class="px-ico" data-ico="back"></i> KOORDINAT</button>
 
       <!-- Navigation HUD -->
       <div class="nav-hud">
@@ -193,7 +195,7 @@
       <!-- Bottom bar -->
       <div class="nav-bottom">
         <button id="btn-confirm" class="btn-primary" disabled>
-          📍 Konfirmasi Posisi
+          <i class="px-ico" data-ico="pin"></i> Konfirmasi Posisi
         </button>
       </div>
     </div>
@@ -205,21 +207,23 @@
   <div id="page-story" class="page" style="display:none">
     <div class="story-content">
       <div class="story-header">
-        <div class="level-badge" id="story-level-title">⚔️ Materi Sejarah</div>
+        <div class="level-badge" id="story-level-title">Materi Sejarah</div>
       </div>
+
+      <div id="story-dialog" class="px-dialog-slot"></div>
 
       <div class="parchment-card story-card">
         <div class="story-text" id="story-text"></div>
       </div>
 
       <div id="video-section" class="video-section hidden">
-        <h3 class="video-section-title">🎬 Video Rekomendasi</h3>
+        <h3 class="video-section-title"><i class="px-ico" data-ico="video"></i> Video Rekomendasi</h3>
         <div id="video-links" class="video-links"></div>
       </div>
 
       <div class="story-actions">
         <button id="btn-to-posttest" class="btn-primary">
-          📝 Lanjut ke Post-Test
+          <i class="px-ico" data-ico="book"></i> Lanjut ke Post-Test
         </button>
       </div>
     </div>
@@ -230,8 +234,8 @@
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-posttest" class="page" style="display:none">
     <div class="posttest-container">
-      <div class="level-badge" id="posttest-level-title">📝 Post-Test</div>
-      <div class="score-display" id="posttest-score-display">🏆 0 Poin</div>
+      <div class="level-badge" id="posttest-level-title">Post-Test</div>
+      <div class="score-display" id="posttest-score-display">0 Poin</div>
 
       <div id="posttest-questions" class="posttest-questions">
         <!-- Questions rendered by JS -->
@@ -239,18 +243,19 @@
 
       <div id="posttest-result" class="posttest-result hidden">
         <div class="glass-card posttest-result-card">
-          <div class="result-icon" id="posttest-result-icon">🎯</div>
+          <div class="result-icon" id="posttest-result-icon"></div>
           <div class="result-text" id="posttest-result-text">Hasil Post-Test</div>
           <div class="result-score" id="posttest-result-score">0/0</div>
         </div>
+        <div id="posttest-dialog" class="px-dialog-slot"></div>
       </div>
 
       <button id="btn-submit-posttest" class="btn-primary">
-        ✅ Submit Jawaban
+        <i class="px-ico" data-ico="check"></i> Submit Jawaban
       </button>
 
       <button id="btn-next-level" class="btn-primary hidden">
-        ➡️ Level Berikutnya
+        <i class="px-ico" data-ico="next"></i> Level Berikutnya
       </button>
     </div>
   </div>
@@ -260,8 +265,10 @@
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-complete" class="page" style="display:none">
     <div class="complete-content">
-      <div class="trophy-icon">🏆</div>
+      <div class="px-trophy" id="px-trophy"></div>
       <h2 class="complete-title">Perjalanan Selesai!</h2>
+
+      <div id="complete-dialog" class="px-dialog-slot"></div>
 
       <div class="glass-card score-card">
         <div class="final-score" id="final-score">0 Poin</div>
@@ -275,10 +282,10 @@
 
       <div class="complete-actions">
         <button id="btn-replay" class="btn-secondary">
-          🔄 Main Ulang
+          <i class="px-ico" data-ico="replay"></i> Main Ulang
         </button>
         <button id="btn-share" class="btn-primary">
-          📤 Bagikan Hasil
+          <i class="px-ico" data-ico="next"></i> Bagikan Hasil
         </button>
       </div>
     </div>
@@ -287,6 +294,9 @@
   <!-- ═══════════════════════════════════════════════════════════
        TOAST NOTIFICATIONS
        ═══════════════════════════════════════════════════════════ -->
+  <!-- Tombol kembali pixel (dikelola app.js) -->
+  <button id="px-back" type="button" aria-label="Kembali"><i class="px-ico" data-ico="back"></i><span id="px-back-label">KEMBALI</span></button>
+
   <div id="toast-container" class="toast-container"></div>
 
   <!-- ═══════════════════════════════════════════════════════════
@@ -297,6 +307,7 @@
   <script src="js/data.js"></script>
   <script src="js/geo.js"></script>
   <script src="js/effects.js"></script>
+  <script src="js/pixelkit.js"></script>
   <script src="js/map.js"></script>
   <script src="js/pixelmap.js"></script>
   <script src="js/app.js"></script>

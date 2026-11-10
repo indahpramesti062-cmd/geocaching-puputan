@@ -51,13 +51,22 @@ class GameMap {
       this.map.removeLayer(this.cacheMarker);
     }
 
-    const cacheIcon = L.divIcon({
-      className: 'cache-marker-wrapper',
-      html: `<div class="cache-marker-pulse">📍</div>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
-      popupAnchor: [0, -20]
-    });
+    const hasPixel = typeof PixelKit !== 'undefined';
+    const cacheIcon = hasPixel
+      ? L.divIcon({
+          className: 'px-map-chest',
+          html: PixelKit.objectSVG('chest', 2),
+          iconSize: [32, 24],
+          iconAnchor: [16, 20],
+          popupAnchor: [0, -22]
+        })
+      : L.divIcon({
+          className: 'cache-marker-wrapper',
+          html: `<div class="cache-marker-pulse">📍</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+          popupAnchor: [0, -20]
+        });
 
     this.cacheMarker = L.marker([lat, lon], { icon: cacheIcon })
       .addTo(this.map)
@@ -69,12 +78,19 @@ class GameMap {
     this.playerPosition = { lat, lon, accuracy };
 
     if (!this.playerMarker) {
-      const playerIcon = L.divIcon({
-        className: 'player-marker-wrapper',
-        html: `<div class="player-marker-pulse"></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
+      const playerIcon = typeof PixelKit !== 'undefined'
+        ? L.divIcon({
+            className: 'px-map-player',
+            html: PixelKit.playerSVG(2, 'px-idle'),
+            iconSize: [32, 48],
+            iconAnchor: [16, 46]
+          })
+        : L.divIcon({
+            className: 'player-marker-wrapper',
+            html: `<div class="player-marker-pulse"></div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+          });
 
       this.playerMarker = L.marker([lat, lon], { icon: playerIcon })
         .addTo(this.map);

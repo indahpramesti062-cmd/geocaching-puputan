@@ -20,6 +20,7 @@ let state = {
   postTestScores: {},
   postTestAnswers: {},
   maxUnlocked: 0,
+  cluesSolved: [],
   started: false
 };
 
@@ -59,6 +60,7 @@ function resetState() {
     postTestScores: {},
     postTestAnswers: {},
     maxUnlocked: 0,
+    cluesSolved: [],
     started: false
   };
   saveState();
@@ -66,6 +68,16 @@ function resetState() {
 }
 
 // ── Page Router ──────────────────────────────────────────────
+// Label tombol kembali (pojok kiri atas) untuk tiap halaman
+const BACK_LABELS = {
+  'page-levels': 'BERANDA',
+  'page-clue': 'PETA',
+  'page-cache': 'PETA',
+  'page-story': 'PETA',
+  'page-posttest': 'MATERI',
+  'page-complete': 'PETA'
+};
+
 function showPage(pageId) {
   document.querySelectorAll('.page').forEach(p => {
     p.style.display = 'none';
@@ -80,6 +92,65 @@ function showPage(pageId) {
     page.scrollTop = 0;
     currentPage = pageId;
   }
+
+  // Latar pixel: senja untuk halaman Selesai, siang untuk lainnya
+  PixelKit.setScene(pageId === 'page-complete' ? 'dusk' : 'day');
+
+  // Tombol kembali pixel
+  const backBtn = document.getElementById('px-back');
+  if (backBtn) {
+    const label = BACK_LABELS[pageId];
+    backBtn.classList.toggle('show', !!label);
+    if (label) document.getElementById('px-back-label').textContent = label;
+  }
+
+  if (pageId === 'page-home') {
+    refreshHome();
+    // Buang "penjaga riwayat" agar tombol back HP di beranda keluar dengan normal
+    if (history.state && history.state.app === 'guard') history.back();
+  } else if (!history.state || history.state.app !== 'guard') {
+    // Tambahkan satu entri riwayat, supaya tombol back HP/browser
+    // kembali ke halaman sebelumnya di dalam game (bukan keluar link)
+    history.pushState({ app: 'guard' }, '');
+  }
+
+  if (pageId !== 'page-nav') window.scrollTo(0, 0);
+}
+
+// Kembali ke halaman sebelumnya secara logis
+function goBack() {
+  switch (currentPage) {
+    case 'page-levels':
+      showPage('page-home');
+      break;
+    case 'page-clue':
+      stopLevelTimer();
+      document.getElementById('answer-input').disabled = false;
+      document.getElementById('btn-check').disabled = false;
+      renderLevelMap();
+      showPage('page-levels');
+      break;
+    case 'page-nav':
+      stopNavigation();
+      revealCache(state.currentLevel);
+      break;
+    case 'page-posttest':
+      showStory(state.currentLevel);
+      break;
+    case 'page-cache':
+    case 'page-story':
+    case 'page-complete':
+      renderLevelMap();
+      showPage('page-levels');
+      break;
+    default:
+      break;
+  }
+}
+
+function refreshHome() {
+  const hasProgress = state.started && state.levelsCompleted.length > 0;
+  document.getElementById('continue-section').classList.toggle('hidden', !hasProgress);
 }
 
 // ── Level Map Renderer (Pixel Art — lihat js/pixelmap.js) ────
@@ -117,9 +188,14 @@ function startLevel(levelId) {
     return;
   }
 
+  // Teka-teki sudah pernah dijawab benar → langsung ke koordinat cache
+  if (level.hasGPS && (state.cluesSolved || []).includes(levelId)) {
+    revealCache(levelId);
+    return;
+  }
+
   // Show clue
-  document.getElementById('clue-level-title').textContent = `⚔️ Level ${level.id}`;
-  document.getElementById('clue-intro-text').innerHTML = `<em>"${level.clueIntro}"</em>`;
+  document.getElementById('clue-level-title').textContent = `LEVEL ${level.id}`;
   document.getElementById('clue-question-text').textContent = level.clue;
   document.getElementById('answer-input').value = '';
   document.getElementById('answer-input').disabled = false;
@@ -129,6 +205,9 @@ function startLevel(levelId) {
   // Start timer
   startLevelTimer();
   showPage('page-clue');
+
+  // Sang Penjaga membacakan pengantar teka-teki
+  PixelKit.dialog(document.getElementById('clue-dialog'), { who: 'guide', text: level.clueIntro });
 }
 
 // ── Timer ────────────────────────────────────────────────────
@@ -177,6 +256,9 @@ function checkAnswer() {
 
     // No score for clue (per user request)
 
+    // Ingat bahwa teka-teki ini sudah terjawab
+    state.cluesSolved = state.cluesSolved || [];
+    if (!state.cluesSolved.includes(levelId)) state.cluesSolved.push(levelId);
     saveState();
 
     setTimeout(() => {
@@ -212,8 +294,9 @@ function useHint() {
   state.hintsUsed.push(levelId);
   saveState();
 
-  document.getElementById('hint-text').textContent = level.hint;
-  document.getElementById('hint-text').classList.remove('hidden');
+  const hintEl = document.getElementById('hint-text');
+  hintEl.classList.remove('hidden');
+  PixelKit.dialog(hintEl, { who: 'guide', name: 'SANG PENJAGA · HINT', text: level.hint });
 
   showToast('💡 Hint digunakan!', 'warning');
 }
@@ -236,7 +319,8 @@ function revealCache(levelId) {
     document.getElementById('cache-utm').textContent = '—';
   }
 
-  document.getElementById('cache-location-name').textContent = `📍 ${level.locationName}`;
+  document.getElementById('cache-location-name').innerHTML =
+    `${PixelKit.icon('pin', 2)}<span>${PixelKit.esc(level.locationName)}</span>`;
 
   // Set external links
   const lat = cache.lat;
@@ -246,6 +330,12 @@ function revealCache(levelId) {
   document.getElementById('btn-gmaps').href = `https://www.google.com/maps?q=${lat},${lon}`;
 
   showPage('page-cache');
+
+  PixelKit.renderCacheArt(document.getElementById('px-cache-art'));
+  PixelKit.dialog(document.getElementById('cache-dialog'), {
+    who: 'player',
+    text: `Ketemu! Koordinat cache di ${level.locationName} sudah terbuka. Ayo kita ke sana!`
+  });
 }
 
 // ── Navigation Phase ─────────────────────────────────────────
@@ -427,7 +517,7 @@ function showStory(levelId) {
   const level = LEVELS.find(l => l.id === levelId);
   if (!level) return;
 
-  document.getElementById('story-level-title').textContent = `⚔️ ${level.title}`;
+  document.getElementById('story-level-title').textContent = level.title;
 
   // Add photo banner before story text
   const storyContent = document.querySelector('#page-story .story-content');
@@ -439,7 +529,7 @@ function showStory(levelId) {
   banner.className = 'story-photo-banner';
   banner.innerHTML = `
     <img src="${photoUrl}" alt="${level.locationName}" class="story-photo-img" loading="eager" onerror="this.style.display='none'">
-    <span class="story-photo-label">📍 ${level.locationName}</span>
+    <span class="story-photo-label">${PixelKit.icon('pin', 2)}<span>${level.locationName}</span></span>
   `;
   const storyCard = storyContent.querySelector('.story-card');
   storyContent.insertBefore(banner, storyCard);
@@ -458,7 +548,7 @@ function showStory(levelId) {
       card.target = '_blank';
       card.className = 'video-thumb-card';
       card.innerHTML = `
-        <div class="video-play-icon">▶️</div>
+        <div class="video-play-icon">${PixelKit.icon('video', 3)}</div>
         <span class="video-thumb-title">${v.title}</span>
       `;
       videoLinks.appendChild(card);
@@ -469,6 +559,13 @@ function showStory(levelId) {
   }
 
   showPage('page-story');
+
+  PixelKit.dialog(document.getElementById('story-dialog'), {
+    who: 'guide',
+    text: level.hasGPS
+      ? `Kamu sudah sampai di ${level.locationName}. Simak kisahnya baik-baik, nanti ada post-test!`
+      : 'Sebelum berangkat, mari pahami dulu latar sejarahnya. Baca sampai habis, ya!'
+  });
 
   // Typewriter effect on first paragraph
   const firstP = document.querySelector('#story-text p');
@@ -482,8 +579,8 @@ function showPostTest(levelId) {
   const level = LEVELS.find(l => l.id === levelId);
   if (!level) return;
 
-  document.getElementById('posttest-level-title').textContent = `📝 Post-Test: Level ${levelId}`;
-  document.getElementById('posttest-score-display').textContent = `🏆 ${state.score} Poin`;
+  document.getElementById('posttest-level-title').textContent = `POST-TEST · LEVEL ${levelId}`;
+  document.getElementById('posttest-score-display').innerHTML = `${PixelKit.icon('coin', 2)}<span>${state.score} POIN</span>`;
 
   // Hide result, show submit button
   document.getElementById('posttest-result').classList.add('hidden');
@@ -585,10 +682,11 @@ function submitPostTest() {
     return;
   }
 
-  // Save answers and score
+  // Save answers and score (mengulang post-test mengganti skor lama, bukan menambah)
+  const previousScore = state.postTestScores[levelId] || 0;
   state.postTestScores[levelId] = earnedPoints;
   state.postTestAnswers[levelId] = answers;
-  state.score += earnedPoints;
+  state.score += earnedPoints - previousScore;
   saveState();
 
   // Disable inputs
@@ -602,7 +700,7 @@ function submitPostTest() {
   const resultScore = document.getElementById('posttest-result-score');
 
   const percentage = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
-  resultIcon.textContent = percentage >= 80 ? '🌟' : percentage >= 50 ? '🎯' : '📝';
+  resultIcon.innerHTML = PixelKit.icon(percentage >= 80 ? 'trophy' : percentage >= 50 ? 'star' : 'book', 5);
   resultText.textContent = percentage >= 80 ? 'Luar biasa!' : percentage >= 50 ? 'Cukup baik!' : 'Tetap semangat!';
   resultScore.textContent = `${earnedPoints} / ${totalPoints} poin`;
 
@@ -610,7 +708,16 @@ function submitPostTest() {
   document.getElementById('btn-submit-posttest').classList.add('hidden');
   document.getElementById('btn-next-level').classList.remove('hidden');
 
-  document.getElementById('posttest-score-display').textContent = `🏆 ${state.score} Poin`;
+  document.getElementById('posttest-score-display').innerHTML = `${PixelKit.icon('coin', 2)}<span>${state.score} POIN</span>`;
+
+  PixelKit.dialog(document.getElementById('posttest-dialog'), {
+    who: 'guide',
+    text: percentage >= 80
+      ? 'Hebat! Kamu benar-benar memahami kisah ini. Lanjutkan perjalananmu!'
+      : percentage >= 50
+        ? 'Bagus! Masih ada yang terlewat, tapi kamu siap ke lokasi berikutnya.'
+        : 'Tidak apa-apa. Coba baca lagi materinya pelan-pelan, ya.'
+  });
 
   if (percentage >= 80) createConfetti();
   showToast(`📝 Post-Test selesai! +${earnedPoints} poin`, 'success');
@@ -634,7 +741,7 @@ function nextLevel() {
 
 // ── Completion ───────────────────────────────────────────────
 function showCompletion() {
-  document.getElementById('final-score').textContent = state.score;
+  document.getElementById('final-score').textContent = `${state.score} POIN`;
   document.getElementById('complete-narrative').innerHTML = CLOSING_NARRATION;
 
   // Stats
@@ -642,32 +749,25 @@ function showCompletion() {
   const totalLevels = LEVELS.length;
   const completed = state.levelsCompleted.length;
   const totalTime = Object.values(state.levelTimes).reduce((a, b) => a + b, 0);
-  const avgTime = completed > 0 ? Math.round(totalTime / completed) : 0;
 
-  statsDiv.innerHTML = `
+  const stat = (ico, value, label) => `
     <div class="stat-item">
-      <span class="stat-icon">🏁</span>
-      <span class="stat-value">${completed}/${totalLevels}</span>
-      <span class="stat-label">Level Selesai</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-icon">⏱️</span>
-      <span class="stat-value">${Math.floor(totalTime / 60)}m ${totalTime % 60}s</span>
-      <span class="stat-label">Total Waktu</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-icon">🎯</span>
-      <span class="stat-value">${state.score}</span>
-      <span class="stat-label">Total Poin</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-icon">💡</span>
-      <span class="stat-value">${state.hintsUsed.length}</span>
-      <span class="stat-label">Hint Digunakan</span>
-    </div>
-  `;
+      <span class="stat-icon">${PixelKit.icon(ico, 3)}</span>
+      <span class="stat-value">${value}</span>
+      <span class="stat-label">${label}</span>
+    </div>`;
+  statsDiv.innerHTML =
+    stat('map', `${completed}/${totalLevels}`, 'Level Selesai') +
+    stat('clock', `${Math.floor(totalTime / 60)}m ${totalTime % 60}s`, 'Total Waktu') +
+    stat('coin', state.score, 'Total Poin') +
+    stat('bulb', state.hintsUsed.length, 'Hint Digunakan');
 
   showPage('page-complete');
+  PixelKit.renderTrophy(document.getElementById('px-trophy'));
+  PixelKit.dialog(document.getElementById('complete-dialog'), {
+    who: 'guide',
+    text: 'Luar biasa! Kamu telah menelusuri seluruh jejak perjuangan Klungkung. Semangat puputan kini ada padamu.'
+  });
   createConfetti();
 }
 
@@ -692,12 +792,21 @@ function shareResult() {
 
 // ── Event Listeners ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  const hasSaved = loadState();
+  loadState();
 
-  // Show continue button if there's saved progress
-  if (hasSaved && state.started && state.levelsCompleted.length > 0) {
-    document.getElementById('continue-section').classList.remove('hidden');
-  }
+  // Siapkan latar pixel, ikon, dan panggung beranda
+  PixelKit.ensureScene();
+  PixelKit.hydrateIcons();
+  PixelKit.renderHero(document.getElementById('px-hero'));
+  try { history.replaceState({ app: 'root' }, ''); } catch (e) { /* abaikan */ }
+
+  // Tombol back HP/browser → kembali ke halaman sebelumnya di dalam game
+  window.addEventListener('popstate', () => {
+    if (currentPage && currentPage !== 'page-home') goBack();
+  });
+
+  // Tombol kembali pixel (pojok kiri atas)
+  document.getElementById('px-back').addEventListener('click', goBack);
 
   // ── Home Page ──
   document.getElementById('btn-start').addEventListener('click', () => {
@@ -724,9 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Level Map ──
-  document.getElementById('btn-back-home').addEventListener('click', () => {
-    showPage('page-home');
-  });
+  document.getElementById('btn-back-home').addEventListener('click', goBack);
 
   // ── Clue Page ──
   document.getElementById('btn-check').addEventListener('click', checkAnswer);
@@ -737,14 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-hint').addEventListener('click', useHint);
 
-  document.getElementById('btn-back-levels').addEventListener('click', () => {
-    stopLevelTimer();
-    // Re-enable input
-    document.getElementById('answer-input').disabled = false;
-    document.getElementById('btn-check').disabled = false;
-    renderLevelMap();
-    showPage('page-levels');
-  });
+  document.getElementById('btn-back-levels').addEventListener('click', goBack);
 
   // ── Cache Reveal ──
   document.getElementById('btn-navigate').addEventListener('click', startNavigation);
@@ -752,11 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Navigation ──
   document.getElementById('btn-confirm').addEventListener('click', confirmPosition);
 
-  document.getElementById('btn-nav-back').addEventListener('click', () => {
-    stopNavigation();
-    const levelId = state.currentLevel;
-    revealCache(levelId);
-  });
+  document.getElementById('btn-nav-back').addEventListener('click', goBack);
 
   // ── Story → Post-Test ──
   document.getElementById('btn-to-posttest').addEventListener('click', () => {

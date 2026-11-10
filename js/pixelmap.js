@@ -1,11 +1,9 @@
 // ============================================================
 // pixelmap.js — Peta Perjalanan bergaya Pixel Art (Page 2)
-// - Latar malam pixel: langit berpita, bintang, bulan, awan,
-//   siluet Gunung Agung & meru, kunang-kunang
-// - Papan rumput dengan jalan setapak berliku
-// - Karakter berjubah ungu (sprite orisinal) yang berjalan
-//   menyusuri jalan ke setiap titik lokasi
-// Semua sprite digambar dari data pixel di bawah (tanpa file gambar).
+// - Papan rumput siang dengan jalan setapak berliku
+// - Anak petualang (pemain) berjalan ke setiap titik lokasi
+// - Sang Penjaga (NPC berjubah) berdiri di dekat papan MULAI
+// Sprite & latar diambil dari js/pixelkit.js
 // ============================================================
 
 const PixelMap = (() => {
@@ -14,396 +12,34 @@ const PixelMap = (() => {
   const AVATAR_KEY = 'geocaching_puputan_avatar';
   const START = -1;          // indeks titik "MULAI"
   const ROW_GAP = 170;       // jarak vertikal antar titik lokasi (px)
-  const TOP_PAD = 160;       // posisi y titik pertama
-  const START_Y = 62;        // posisi y titik MULAI
+  const TOP_PAD = 170;       // posisi y titik pertama
+  const START_Y = 74;        // posisi y titik MULAI
   const SPEED = 165;         // kecepatan jalan (px/detik)
   const MAX_WALK_MS = 5200;  // batas durasi jalan jauh
   const STEP_MS = 150;       // ganti frame langkah
+  const AV_W = 48, AV_H = 72;
   const reduceMotion = !!(window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-  // ══════════════════════════════════════════════════════════
-  //  DATA SPRITE PIXEL
-  // ══════════════════════════════════════════════════════════
-
-  // Karakter berjubah ungu (16 x 20)
-  const AVATAR_PAL = {
-    K: '#1a0b2e', D: '#3b1d66', P: '#6237a8', L: '#8b5fd3',
-    H: '#b896f2', B: '#07040f', E: '#ff5cf4', G: '#ffd23f'
-  };
-  const AVATAR_BODY = [
-    '.....KKKKKKK....',
-    '...KKPHHPPPPKK..',
-    'KK.KPLLPPPPPPPK.',
-    'KPKPLPPPPPPPPPK.',
-    '.KKPPKKKKKKKPPK.',
-    '..KPKBBBBBBBKPK.',
-    '..KPBEEBBBEEBPK.',
-    '..KPBBBBBBBBBPK.',
-    '..KDPBBBBBBBPDK.',
-    '...KDPPPPPPPDK..',
-    '...KPPPPGPPPPK..',
-    '..KPLPPPDPPPPDK.',
-    '..KPLPPPDPPPPDK.',
-    '.KPLPPPPDPPPPDK.',
-    '.KPLPPPPDPPPPDK.',
-    '.KPLPPPPDPPPPPDK',
-    'KPLPPPPPDPPPPPDK',
-    'KPDPPDPPDPPDPPDK'
-  ];
-  const AVATAR_HEM_A = [
-    'KDDDDDDDDDDDDDDK',
-    '.KKKK.KKKKK.KKK.'
-  ];
-  const AVATAR_HEM_B = [
-    'KDDDDDDDDDDDDDDK',
-    'KKK.KKKKK.KKKK..'
-  ];
-
-  // Bendera Merah Putih (titik yang sudah selesai) — 8 x 12, 2 frame
-  const FLAG_PAL = { p: '#d8d0b0', R: '#e02424', W: '#f5f5f5', k: '#1a0b2e' };
-  const FLAG_POLE = padRows(['p.......'].concat(Array(10).fill('p.......')).concat(['k.......']), 12);
-  const FLAG_A = padRows(['.RRRRRR.', '.RRRRRR.', '.WWWWWW.', '.WWWWWW.'], 12);
-  const FLAG_B = padRows(['.RRRRR..', '.RRRRRRR', '.WWWWWWW', '.WWWWW..'], 12);
-
-  // Gembok (titik terkunci) — 8 x 9
-  const LOCK_PAL = { k: '#120e1e', s: '#9a96b0', y: '#6a6680', h: '#b0acc4' };
-  const LOCK = [
-    '..ssss..',
-    '.s....s.',
-    '.s....s.',
-    'kkkkkkkk',
-    'khyyyyyk',
-    'kyykkyyk',
-    'kyykkyyk',
-    'kyyyyyyk',
-    'kkkkkkkk'
-  ];
-
-  // Panah penunjuk (titik aktif) — 7 x 5
-  const ARROW_PAL = { G: '#ffd23f', k: '#8a5a00' };
-  const ARROW = [
-    'kkkkkkk',
-    'kGGGGGk',
-    '.kGGGk.',
-    '..kGk..',
-    '...k...'
-  ];
-
-  // Koin skor — 8 x 8
-  const COIN_PAL = { k: '#8a5a00', G: '#ffd23f', Y: '#fff6b0', O: '#e0a020' };
-  const COIN = [
-    '..kkkk..',
-    '.kGGGGk.',
-    'kGYGGGOk',
-    'kGYGkGOk',
-    'kGYGkGOk',
-    'kGGGGGOk',
-    '.kOOOOk.',
-    '..kkkk..'
-  ];
-
-  // Pohon kelapa — 12 x 15
-  const PALM_PAL = {
-    g: '#1d4630', G: '#2c6a43', l: '#4c9a5c',
-    T: '#7a5434', t: '#58391f', k: 'rgba(0,0,0,0.35)'
-  };
-  const PALM = [
-    '...gG..Gg...',
-    '.gGlGggGlGg.',
-    'gGl.gGGg.lGg',
-    'Gl..gTTg..lG',
-    'g....TT....g',
-    '.....Tt.....',
-    '.....tT.....',
-    '....Tt......',
-    '....tT......',
-    '....Tt......',
-    '....tT......',
-    '.....Tt.....',
-    '.....tT.....',
-    '....kTtk....',
-    '...kkkkkk...'
-  ];
-
-  // Obor (dengan api berkedip) — 7 x 14, 2 frame api
-  const TORCH_PAL = { f: '#ff5a1f', F: '#ffb21f', y: '#fff2a6', k: '#2b1d12', b: '#5e4128' };
-  const TORCH_BASE = [
-    '.......', '.......', '.......',
-    '.kkkkk.', '.kbbbk.', '..kbk..',
-    '...b...', '...b...', '...b...', '...b...', '...b...', '...b...',
-    '..kbk..', '.kkkkk.'
-  ];
-  const TORCH_A = padRows(['...f...', '..fFf..', '.fFyFf.'], 14);
-  const TORCH_B = padRows(['....f..', '..ffF..', '.fFyFf.'], 14);
-
-  // Semak — 10 x 5
-  const BUSH_PAL = { b: '#1d4630', B: '#2c6a43', k: 'rgba(0,0,0,0.35)' };
-  const BUSH = [
-    '...bbbb...',
-    '.bbBBbbbb.',
-    'bbBBbbbBbb',
-    'bbbbbbbbbb',
-    '.kkkkkkkk.'
-  ];
-
-  // Bulan purnama — 12 x 12
-  const MOON_PAL = { m: '#fff3c4', c: '#e0d29a' };
-  const MOON = [
-    '....mmmm....',
-    '..mmmmmmmm..',
-    '.mmmmmmmmmm.',
-    '.mmcmmmmmmm.',
-    'mmcccmmmmmmm',
-    'mmmcmmmmcmmm',
-    'mmmmmmmccmmm',
-    'mmmmmmmmmmmm',
-    '.mmmmcmmmmm.',
-    '.mmmmmmmmmm.',
-    '..mmmmmmmm..',
-    '....mmmm....'
-  ];
-
-  // Awan malam — 24 x 6
-  const CLOUD_PAL = { h: '#4d3c8c', c: '#3b2d72', d: '#2a2058' };
-  const CLOUD = [
-    '........hhhh............',
-    '......cccccccc...ccc....',
-    '...ccccccccccccccccccc..',
-    '.ccccccccccccccccccccccc',
-    'cccccccccccccccccccccccc',
-    '.dddddddddddddddddddddd.'
-  ];
-
-  // Gerbang akhir: Candi Bentar (gapura terbelah) — 30 x 21
-  const GATE_PAL = { d: '#5a2a1a', S: '#9a4f2e', g: '#ffd23f', t: '#7a7090' };
-  const GATE_HALF = [
-    '..........dd',
-    '.........ddd',
-    '........dSSd',
-    '........dddd',
-    '.......dSSSd',
-    '......dddddd',
-    '.....dSSSSSd',
-    '....dddddddd',
-    '....dSSSSSSd',
-    '...ddddddddd',
-    '...dSSSSSSSd',
-    '..dddddddddd',
-    '..dSSgSSSSSd',
-    '..dSSSSSSSSd',
-    '.ddddddddddd',
-    '.dSSSSSSSSSd',
-    '.dSSSSSSSSSd',
-    'dddddddddddd',
-    'dSSSSSSSSSSd',
-    'dSSSSSSSSSSd',
-    'dddddddddddd'
-  ];
-  const GATE = GATE_HALF.map((row, r) => {
-    const gap = r === 20 ? 'tttttt' : r === 19 ? '.tttt.' : '......';
-    return row + gap + row.split('').reverse().join('');
-  });
-
-  // Kalimat karakter saat disentuh
-  const AVATAR_LINES = [
+  const PLAYER_LINES = [
     'Ayo jelajahi Klungkung!',
     'Ketuk titik yang bersinar!',
-    'Puputan = berjuang sampai akhir!',
-    'Siap berpetualang?',
+    'Siap berpetualang!',
     'Ikuti jejak sejarah!'
   ];
+  const GUIDE_LINES = [
+    'Om Swastyastu! Aku Sang Penjaga.',
+    'Ketuk titik hijau untuk mulai.',
+    'Bendera Merah Putih = level selesai.',
+    'Gerbang terbuka jika semua selesai.',
+    'Puputan artinya berjuang sampai akhir.'
+  ];
+
+  const K = () => PixelKit;
 
   // ══════════════════════════════════════════════════════════
-  //  HELPER PIXEL → SVG
+  //  STATE
   // ══════════════════════════════════════════════════════════
-
-  function padRows(rows, h) {
-    const w = rows[0].length;
-    const out = rows.slice();
-    while (out.length < h) out.push('.'.repeat(w));
-    return out;
-  }
-
-  // Ubah baris karakter menjadi <rect>, menggabungkan pixel sewarna berderet
-  function rectsFromRows(rows, pal, y0 = 0) {
-    let out = '';
-    for (let y = 0; y < rows.length; y++) {
-      const row = rows[y];
-      let x = 0;
-      while (x < row.length) {
-        const ch = row[x];
-        const color = pal[ch];
-        if (!color) { x++; continue; }
-        let run = 1;
-        while (x + run < row.length && row[x + run] === ch) run++;
-        out += `<rect x="${x}" y="${y + y0}" width="${run}" height="1" fill="${color}"/>`;
-        x += run;
-      }
-    }
-    return out;
-  }
-
-  function svgWrap(w, h, scale, inner, cls = '') {
-    return `<svg class="${cls}" viewBox="0 0 ${w} ${h}" width="${w * scale}" height="${h * scale}" ` +
-      `shape-rendering="crispEdges" aria-hidden="true" focusable="false">${inner}</svg>`;
-  }
-
-  function sprite(rows, pal, scale, cls = '') {
-    return svgWrap(rows[0].length, rows.length, scale, rectsFromRows(rows, pal), cls);
-  }
-
-  function layered(layers, pal, scale, cls = '') {
-    const w = layers[0].rows[0].length;
-    const h = layers[0].rows.length;
-    const inner = layers.map(l => `<g class="${l.cls || ''}">${rectsFromRows(l.rows, pal)}</g>`).join('');
-    return svgWrap(w, h, scale, inner, cls);
-  }
-
-  function avatarSVG() {
-    const body = AVATAR_BODY.map(r => r.replace(/E/g, 'B'));
-    const eyes = AVATAR_BODY.map(r => r.replace(/[^E]/g, '.'));
-    const inner =
-      `<g>${rectsFromRows(body, AVATAR_PAL)}</g>` +
-      `<g class="pm-eyes">${rectsFromRows(eyes, AVATAR_PAL)}</g>` +
-      `<g class="pm-hem-a">${rectsFromRows(AVATAR_HEM_A, AVATAR_PAL, 18)}</g>` +
-      `<g class="pm-hem-b">${rectsFromRows(AVATAR_HEM_B, AVATAR_PAL, 18)}</g>`;
-    return svgWrap(16, 20, 3, inner, 'pm-avatar-svg');
-  }
-
-  // Cache SVG dekorasi agar tidak dibangun ulang tiap render
-  const SVG = {};
-  function cached(key, fn) { return SVG[key] || (SVG[key] = fn()); }
-  const palmSVG = () => cached('palm', () => sprite(PALM, PALM_PAL, 3));
-  const bushSVG = () => cached('bush', () => sprite(BUSH, BUSH_PAL, 3));
-  const torchSVG = () => cached('torch', () => layered([
-    { rows: TORCH_A, cls: 'f-a' }, { rows: TORCH_B, cls: 'f-b' }, { rows: TORCH_BASE }
-  ], TORCH_PAL, 3));
-  const flagSVG = () => cached('flag', () => layered([
-    { rows: FLAG_POLE }, { rows: FLAG_A, cls: 'f-a' }, { rows: FLAG_B, cls: 'f-b' }
-  ], FLAG_PAL, 3, 'pm-flag'));
-  const lockSVG = () => cached('lock', () => sprite(LOCK, LOCK_PAL, 2, 'pm-lock'));
-  const arrowSVG = () => cached('arrow', () => sprite(ARROW, ARROW_PAL, 3, 'pm-arrow'));
-  const coinSVG = () => cached('coin', () => sprite(COIN, COIN_PAL, 2, 'pm-coin'));
-  const gateSVG = () => cached('gate', () => sprite(GATE, GATE_PAL, 4, 'pm-gate-svg'));
-
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-  }
-
-  // PRNG ber-seed agar posisi bintang selalu sama
-  function mulberry32(a) {
-    return function () {
-      a |= 0; a = a + 0x6D2B79F5 | 0;
-      let t = Math.imul(a ^ a >>> 15, 1 | a);
-      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    };
-  }
-
-  // ══════════════════════════════════════════════════════════
-  //  LATAR MALAM (dibuat sekali, dipakai ulang)
-  // ══════════════════════════════════════════════════════════
-
-  function ensureScene() {
-    const page = document.getElementById('page-levels');
-    if (!page) return;
-    let scene = page.querySelector(':scope > .pm-scene');
-    if (!scene) {
-      scene = document.createElement('div');
-      scene.className = 'pm-scene';
-      scene.setAttribute('aria-hidden', 'true');
-
-      const rnd = mulberry32(1908); // tahun Puputan Klungkung
-      let stars = '';
-      for (let i = 0; i < 70; i++) {
-        const x = (rnd() * 100).toFixed(2);
-        const y = (rnd() * 62).toFixed(2);
-        const big = rnd() < 0.18 ? ' big' : '';
-        const tone = rnd() < 0.25 ? ' lilac' : '';
-        const delay = (rnd() * 4).toFixed(2);
-        const dur = (2 + rnd() * 3).toFixed(2);
-        stars += `<i class="pm-star${big}${tone}" style="left:${x}%;top:${y}%;animation-delay:-${delay}s;animation-duration:${dur}s"></i>`;
-      }
-      let flies = '';
-      for (let i = 0; i < 12; i++) {
-        const x = (rnd() * 100).toFixed(2);
-        const y = (55 + rnd() * 40).toFixed(2);
-        const delay = (rnd() * 6).toFixed(2);
-        flies += `<i class="pm-fly" style="left:${x}%;top:${y}%;animation-delay:-${delay}s,-${delay}s"></i>`;
-      }
-      const cloud = sprite(CLOUD, CLOUD_PAL, 6);
-      scene.innerHTML =
-        `<div class="pm-stars">${stars}</div>` +
-        `<i class="pm-shoot"></i>` +
-        `<div class="pm-moon">${sprite(MOON, MOON_PAL, 5)}</div>` +
-        `<div class="pm-cloud c1">${cloud}</div>` +
-        `<div class="pm-cloud c2">${cloud}</div>` +
-        `<div class="pm-cloud c3">${cloud}</div>` +
-        `<div class="pm-mountains"></div>` +
-        `<div class="pm-flies">${flies}</div>`;
-      page.prepend(scene);
-    }
-    drawMountains(scene);
-  }
-
-  function steppedPath(W, H, fn, step) {
-    let d = `M0 ${H}`;
-    for (let x = 0; x < W + step; x += step) {
-      const h = Math.max(0, Math.round(fn(x) / step) * step);
-      d += ` L${x} ${H - h} L${x + step} ${H - h}`;
-    }
-    return d + ` L${W + step} ${H} Z`;
-  }
-
-  function drawMountains(scene) {
-    const holder = scene.querySelector('.pm-mountains');
-    if (!holder) return;
-    const W = Math.max(320, window.innerWidth);
-    const H = Math.round(Math.min(260, Math.max(150, window.innerHeight * 0.3)));
-    if (holder.dataset.size === `${W}x${H}`) return;
-    holder.dataset.size = `${W}x${H}`;
-
-    const step = 6;
-    // Gunung Agung (kanan) & Gunung Batur (kiri)
-    const far = x => {
-      const agung = H * 0.92 * (1 - Math.abs(x - W * 0.72) / (W * 0.38));
-      const batur = H * 0.58 * (1 - Math.abs(x - W * 0.18) / (W * 0.24));
-      return Math.max(H * 0.3 + Math.sin(x / 41) * 6, Math.min(agung, H * 0.86), batur);
-    };
-    const midFn = x => H * 0.32 + Math.sin(x / 63) * H * 0.07 + Math.sin(x / 23 + 2) * H * 0.03;
-    const nearFn = x => H * 0.16 + Math.sin(x / 90 + 1) * H * 0.05;
-
-    // Siluet meru (pura bertingkat) di bukit depan
-    let merus = '';
-    [0.1, 0.34, 0.58, 0.88].forEach((fx, idx) => {
-      const cx = Math.round(W * fx / 2) * 2;
-      const base = H - Math.round(nearFn(cx) / step) * step;
-      const tiers = idx % 2 === 0 ? 4 : 3;
-      let y = base;
-      for (let t = 0; t < tiers; t++) {
-        const w = 22 - t * 5;
-        merus += `<rect x="${cx - w / 2}" y="${y - 6}" width="${w}" height="3"/>` +
-                 `<rect x="${cx - 3}" y="${y - 3}" width="6" height="3"/>`;
-        y -= 6;
-      }
-      merus += `<rect x="${cx - 1}" y="${y - 6}" width="2" height="6"/>`;
-    });
-
-    holder.innerHTML =
-      `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges">` +
-      `<path d="${steppedPath(W, H, far, step)}" fill="#22194d"/>` +
-      `<path d="${steppedPath(W, H, midFn, step)}" fill="#18123a"/>` +
-      `<path d="${steppedPath(W, H, nearFn, step)}" fill="#100c28"/>` +
-      `<g fill="#100c28">${merus}</g></svg>`;
-  }
-
-  // ══════════════════════════════════════════════════════════
-  //  STATE RENDER
-  // ══════════════════════════════════════════════════════════
-
   let ctx = null;
   let resizeBound = false;
 
@@ -432,6 +68,7 @@ const PixelMap = (() => {
     cancelAnimationFrame(ctx.rafId);
     ctx.timers.forEach(t => clearTimeout(t));
     clearTimeout(ctx.bubbleT);
+    clearTimeout(ctx.guideT);
     document.documentElement.style.scrollBehavior = '';
     ctx = null;
   }
@@ -445,10 +82,9 @@ const PixelMap = (() => {
   // ══════════════════════════════════════════════════════════
   //  RENDER
   // ══════════════════════════════════════════════════════════
-
   function render(container, opts) {
     teardown();
-    ensureScene();
+    const esc = K().esc;
 
     const levels = opts.levels;
     const n = levels.length;
@@ -460,7 +96,6 @@ const PixelMap = (() => {
 
     const statusOf = i => completed.has(levels[i].id) ? 'completed' : (i <= frontier ? 'active' : 'locked');
     const doneCount = levels.filter(l => completed.has(l.id)).length;
-
     const segs = levels.map(l => `<i class="pm-seg${completed.has(l.id) ? ' on' : ''}"></i>`).join('');
 
     const nodesHTML = levels.map((l, i) => {
@@ -469,9 +104,9 @@ const PixelMap = (() => {
       return `<div class="pm-node is-${st}${cur ? ' is-current' : ''}" data-idx="${i}">` +
         `<span class="pm-glow"></span>` +
         `<span class="pm-pad-wrap"><span class="pm-pad"></span></span>` +
-        (st === 'completed' ? flagSVG() : '') +
-        (st === 'locked' ? lockSVG() : '') +
-        (cur ? arrowSVG() : '') +
+        (st === 'completed' ? K().objectSVG('flag', 3, 'pm-flag') : '') +
+        (st === 'locked' ? K().objectSVG('lock', 2, 'pm-lock') : '') +
+        (cur ? K().objectSVG('arrow', 3, 'pm-arrow') : '') +
         `</div>`;
     }).join('');
 
@@ -500,7 +135,7 @@ const PixelMap = (() => {
           <div class="pm-kicker">◆ JEJAK PUPUTAN KLUNGKUNG ◆</div>
           <h2 class="pm-title">PETA PERJALANAN</h2>
           <div class="pm-hud">
-            <div class="pm-hud-box pm-hud-score">${coinSVG()}<span class="pm-hud-num">${opts.score || 0}</span><span class="pm-hud-unit">POIN</span></div>
+            <div class="pm-hud-box pm-hud-score">${K().icon('coin', 2, 'pm-coin')}<span class="pm-hud-num">${opts.score || 0}</span><span class="pm-hud-unit">POIN</span></div>
             <div class="pm-hud-box pm-hud-prog">
               <span class="pm-hud-label">LEVEL ${doneCount}/${n}</span>
               <div class="pm-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${doneCount}">${segs}</div>
@@ -512,22 +147,22 @@ const PixelMap = (() => {
           <svg class="pm-road-svg" aria-hidden="true" shape-rendering="crispEdges"></svg>
           <div class="pm-deco"></div>
           <div class="pm-sign"><span>MULAI</span></div>
+          <div class="pm-guide" title="Sang Penjaga">${K().guideSVG(3, 'px-float')}<div class="pm-bubble pm-guide-bubble"></div></div>
           ${nodesHTML}
           ${cardsHTML}
           <div class="pm-gate ${allDone ? 'is-open' : 'is-closed'}" role="button" tabindex="0"
-               aria-label="${allDone ? 'Gerbang kemenangan' : 'Gerbang akhir (terkunci)'}">${gateSVG()}</div>
+               aria-label="${allDone ? 'Gerbang kemenangan' : 'Gerbang akhir (terkunci)'}">${K().objectSVG('gate', 4, 'pm-gate-svg')}</div>
           <div class="pm-gate-label">${allDone ? '★ GERBANG KEMENANGAN ★' : 'SELESAIKAN SEMUA LEVEL'}</div>
           <div class="pm-avatar" title="Ketuk aku!">
             <div class="pm-shadow"></div>
-            <div class="pm-avatar-flip">${avatarSVG()}</div>
-            <div class="pm-bubble"></div>
+            <div class="pm-avatar-flip">${K().playerSVG(3, 'pm-avatar-svg')}</div>
+            <div class="pm-bubble pm-player-bubble"></div>
           </div>
         </div>
       </div>`;
 
     const board = container.querySelector('.pm-board');
 
-    // Posisi awal karakter
     const saved = loadAvatar();
     let startIdx = saved === null ? START : Math.max(START, Math.min(n, saved));
     if (startIdx > target) startIdx = target;
@@ -538,12 +173,14 @@ const PixelMap = (() => {
       svg: board.querySelector('.pm-road-svg'),
       deco: board.querySelector('.pm-deco'),
       sign: board.querySelector('.pm-sign'),
+      guide: board.querySelector('.pm-guide'),
+      guideBubble: board.querySelector('.pm-guide-bubble'),
       nodes: Array.from(board.querySelectorAll('.pm-node')),
       cards: Array.from(board.querySelectorAll('.pm-card')),
       gate: board.querySelector('.pm-gate'),
       gateLabel: board.querySelector('.pm-gate-label'),
       avatar: board.querySelector('.pm-avatar'),
-      bubble: board.querySelector('.pm-bubble'),
+      bubble: board.querySelector('.pm-player-bubble'),
       geo: null,
       avatarIdx: startIdx,
       av: { x: 0, y: 0 },
@@ -551,7 +188,9 @@ const PixelMap = (() => {
       rafId: 0,
       timers: [],
       bubbleT: 0,
+      guideT: 0,
       lineIdx: 0,
+      guideIdx: 0,
       needsLayout: false
     };
 
@@ -566,8 +205,6 @@ const PixelMap = (() => {
       window.addEventListener('resize', () => {
         clearTimeout(t);
         t = setTimeout(() => {
-          const scene = document.querySelector('#page-levels > .pm-scene');
-          if (scene) drawMountains(scene);
           if (!ctx) return;
           if (ctx.walking) { ctx.needsLayout = true; return; }
           layout();
@@ -575,7 +212,6 @@ const PixelMap = (() => {
       });
     }
 
-    // Halaman mungkin belum terlihat saat render → tunggu sampai punya lebar
     const myCtx = ctx;
     const tryLayout = (tries = 0) => {
       if (ctx !== myCtx) return;
@@ -588,7 +224,6 @@ const PixelMap = (() => {
   // ══════════════════════════════════════════════════════════
   //  GEOMETRI & LAYOUT
   // ══════════════════════════════════════════════════════════
-
   function computeGeo(W, n) {
     const xL = Math.round(Math.max(56, W * 0.2));
     const xR = W - xL;
@@ -597,7 +232,7 @@ const PixelMap = (() => {
       pts.push({ x: i % 2 === 0 ? xL : xR, y: TOP_PAD + i * ROW_GAP, side: i % 2 === 0 ? 'L' : 'R' });
     }
     const start = { x: xL, y: START_Y };
-    const finish = { x: Math.round(W / 2), y: pts[n - 1].y + 190 };
+    const finish = { x: Math.round(W / 2), y: pts[n - 1].y + 200 };
     return { W, xL, xR, pts, start, finish, H: finish.y + 60 };
   }
 
@@ -608,7 +243,7 @@ const PixelMap = (() => {
     return g.pts[idx];
   }
 
-  // Jalur berbentuk siku (seperti game RPG): turun → menyamping → turun
+  // Jalur siku ala game RPG: turun → menyamping → turun
   function segment(a, b) {
     const pa = pointOf(a), pb = pointOf(b);
     if (pa.x === pb.x) return [{ x: pb.x, y: pb.y }];
@@ -629,8 +264,7 @@ const PixelMap = (() => {
   }
 
   function decoAt(type, x, y) {
-    const svg = type === 'palm' ? palmSVG() : type === 'torch' ? torchSVG() : bushSVG();
-    return `<div class="pm-d pm-d-${type}" style="left:${Math.round(x)}px;top:${Math.round(y)}px">${svg}</div>`;
+    return `<div class="pm-d pm-d-${type}" style="left:${Math.round(x)}px;top:${Math.round(y)}px">${K().objectSVG(type, 3)}</div>`;
   }
 
   function layout() {
@@ -643,13 +277,11 @@ const PixelMap = (() => {
     c.geo = g;
     c.board.style.height = g.H + 'px';
 
-    // Titik lokasi
     c.nodes.forEach((el, i) => {
       el.style.left = g.pts[i].x + 'px';
       el.style.top = g.pts[i].y + 'px';
     });
 
-    // Kartu info di sisi dalam
     const gap = 38, edge = 10;
     c.cards.forEach((el, i) => {
       const p = g.pts[i];
@@ -676,31 +308,33 @@ const PixelMap = (() => {
       `<path class="pm-road-edge" d="${dFull}"/>` +
       `<path class="pm-road" d="${dFull}"/>` +
       `<path class="pm-road-pebbles" d="${dFull}"/>` +
-      (done.length > 1 ? `<path class="pm-road-gold" d="${pathD(done)}"/>` : '');
+      (done.length > 1 ? `<path class="pm-road-trail" d="${pathD(done)}"/>` : '');
 
     // Dekorasi di sisi luar jalan
     let deco = '';
     const lx = Math.max(22, Math.round(g.xL / 2) - 4);
     const rx = W - lx;
+    const kinds = [['palm', 'tree'], ['tree', 'bush'], ['bush', 'palm'], ['palm', 'flower'], ['tree', 'palm'], ['flower', 'tree']];
     for (let i = 0; i < c.n - 1; i++) {
       const my = Math.round((g.pts[i].y + g.pts[i + 1].y) / 2);
-      const leftPalm = i % 2 === 0;
-      deco += decoAt(leftPalm ? 'palm' : 'torch', lx, my + 22);
-      deco += decoAt(leftPalm ? 'torch' : 'palm', rx, my + 22);
+      const [a, b] = kinds[i % kinds.length];
+      deco += decoAt(a, lx, my + 22);
+      deco += decoAt(b, rx, my + 22);
     }
-    deco += decoAt('torch', Math.max(16, g.start.x - 30), g.start.y + 14);
-    deco += decoAt('bush', g.finish.x - 90, g.finish.y + 12);
-    deco += decoAt('bush', g.finish.x + 90, g.finish.y + 12);
+    deco += decoAt('flower', Math.max(16, g.start.x - 32), g.start.y + 12);
+    deco += decoAt('bush', g.finish.x - 92, g.finish.y + 12);
+    deco += decoAt('bush', g.finish.x + 92, g.finish.y + 12);
     c.deco.innerHTML = deco;
 
-    // Papan MULAI, gerbang akhir
+    // Papan MULAI, Sang Penjaga, gerbang akhir
     c.sign.style.left = (g.start.x + 24) + 'px';
-    c.sign.style.top = (g.start.y - 34) + 'px';
+    c.sign.style.top = (g.start.y - 40) + 'px';
+    c.guide.style.left = Math.min(W - 40, g.start.x + 130) + 'px';
+    c.guide.style.top = (g.start.y + 6) + 'px';
     c.gate.style.left = g.finish.x + 'px';
     c.gate.style.top = g.finish.y + 'px';
     c.gateLabel.style.top = (g.finish.y + 22) + 'px';
 
-    // Karakter
     const p = pointOf(c.avatarIdx);
     setAvatarXY(p.x, p.y);
     updateMarks();
@@ -710,7 +344,7 @@ const PixelMap = (() => {
   function setAvatarXY(x, y) {
     const c = ctx;
     c.av.x = x; c.av.y = y;
-    c.avatar.style.transform = `translate3d(${Math.round(x - 24)}px, ${Math.round(y - 57)}px, 0)`;
+    c.avatar.style.transform = `translate3d(${Math.round(x - AV_W / 2)}px, ${Math.round(y - AV_H + 3)}px, 0)`;
     const W = c.geo ? c.geo.W : 0;
     c.avatar.classList.toggle('edge-left', x < 110);
     c.avatar.classList.toggle('edge-right', W > 0 && x > W - 110);
@@ -725,7 +359,7 @@ const PixelMap = (() => {
     const c = ctx;
     try { window.scrollTo(0, 0); } catch (e) { /* abaikan */ }
     if (c.avatarIdx !== c.target) {
-      // Baru menyelesaikan level → karakter berjalan sendiri ke titik berikutnya
+      if (c.avatarIdx === START) guideSay('Selamat datang! Ayo mulai dari Prolog.', 2600);
       c.timers.push(setTimeout(() => {
         if (ctx === c && !c.walking && isVisible()) walkTo(c.target, null, true);
       }, 700));
@@ -744,12 +378,12 @@ const PixelMap = (() => {
   // ══════════════════════════════════════════════════════════
   //  INTERAKSI
   // ══════════════════════════════════════════════════════════
-
   function onBoardClick(e) {
     if (!ctx) return;
     const item = e.target.closest('.pm-card, .pm-node');
     if (item) { handleSelect(parseInt(item.dataset.idx, 10)); return; }
     if (e.target.closest('.pm-gate')) { handleGate(); return; }
+    if (e.target.closest('.pm-guide')) { handleGuideTap(); return; }
     if (e.target.closest('.pm-avatar')) handleAvatarTap();
   }
 
@@ -782,18 +416,24 @@ const PixelMap = (() => {
     const c = ctx;
     if (c.walking) return;
     c.avatar.classList.remove('jump'); void c.avatar.offsetWidth; c.avatar.classList.add('jump');
-    say(AVATAR_LINES[c.lineIdx++ % AVATAR_LINES.length], 1800);
+    say(PLAYER_LINES[c.lineIdx++ % PLAYER_LINES.length], 1800);
   }
 
-  function say(text, ms = 1400) {
+  function handleGuideTap() {
+    const c = ctx;
+    guideSay(GUIDE_LINES[c.guideIdx++ % GUIDE_LINES.length], 2600);
+  }
+
+  function popBubble(b, text, ms, timerKey) {
     const c = ctx;
     if (!c) return;
-    const b = c.bubble;
     b.textContent = text;
     b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
-    clearTimeout(c.bubbleT);
-    c.bubbleT = setTimeout(() => b.classList.remove('show'), ms);
+    clearTimeout(c[timerKey]);
+    c[timerKey] = setTimeout(() => b.classList.remove('show'), ms);
   }
+  function say(text, ms = 1400) { if (ctx) popBubble(ctx.bubble, text, ms, 'bubbleT'); }
+  function guideSay(text, ms = 2000) { if (ctx) popBubble(ctx.guideBubble, text, ms, 'guideT'); }
 
   function spawnDust(x, y) {
     const d = document.createElement('i');
@@ -807,7 +447,7 @@ const PixelMap = (() => {
   // Kamera mengikuti karakter saat berjalan
   function follow() {
     const r = ctx.board.getBoundingClientRect();
-    const screenY = r.top + ctx.av.y - 30;
+    const screenY = r.top + ctx.av.y - 36;
     const diff = screenY - window.innerHeight * 0.55;
     if (Math.abs(diff) > 4) window.scrollBy(0, diff * 0.12);
   }
