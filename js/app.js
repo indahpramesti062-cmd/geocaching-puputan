@@ -8,7 +8,9 @@
 const _qs = new URLSearchParams(window.location.search).get('demo');
 if (_qs === 'true') localStorage.setItem('puputan_demo','1');
 if (_qs === 'false') localStorage.removeItem('puputan_demo');
-const DEMO_MODE = localStorage.getItem('puputan_demo') === '1';
+// Pratinjau per halaman: ?view=home|levels|clue|cache|nav|story|posttest|complete
+const PREVIEW = new URLSearchParams(window.location.search).get('view');
+const DEMO_MODE = localStorage.getItem('puputan_demo') === '1' || PREVIEW === 'nav';
 let demoPos = null;
 function demoWalk(fraction) {
   const level = LEVELS.find(l => l.id === state.currentLevel);
@@ -44,6 +46,7 @@ let timerInterval = null;
 
 // ── State Persistence ────────────────────────────────────────
 function saveState() {
+  if (PREVIEW) return;
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
   } catch (e) { /* quota exceeded, ignore */ }
@@ -894,6 +897,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Initialize first page ──
   showPage('page-home');
+
+  // ── Pratinjau halaman (untuk desain / impor ke Figma) ──
+  if (PREVIEW) {
+    state.started = true; state.levelsCompleted = [0, 1]; state.maxUnlocked = 2; state.currentLevel = 2; state.score = 350;
+    setTimeout(() => {
+      if (PREVIEW === 'levels') { renderLevelMap(); showPage('page-levels'); }
+      else if (PREVIEW === 'clue') startLevel(2);
+      else if (PREVIEW === 'cache') revealCache(2);
+      else if (PREVIEW === 'nav') { revealCache(2); startNavigation(); }
+      else if (PREVIEW === 'story') showStory(2);
+      else if (PREVIEW === 'posttest') showPostTest(2);
+      else if (PREVIEW === 'complete') { state.levelsCompleted = [0,1,2,3,4,5,6]; showCompletion(); }
+    }, 100);
+  }
 
   // ── Demo Mode Banner ──
   if (DEMO_MODE) {
