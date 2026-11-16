@@ -919,3 +919,5 @@ body[data-scene="dusk"] .px-ledge {
 @media (prefers-reduced-motion: reduce) {
   #px-scene *, .px-stage *, .px-dialog * { animation: none !important; }
 }
+.demo-toggle{font-size:11px}.demo-toggle.on{background:#F0A500;color:#1A1A2E}#btn-demo-walk{margin-bottom:8px;width:100%}
+.demo-toggle{font-size:11px}.demo-toggle.on{background:#F0A500;color:#1A1A2E}#btn-demo-walk{margin-bottom:8px;width:100%}

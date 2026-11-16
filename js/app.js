@@ -5,7 +5,19 @@
 // ============================================================
 
 // ── Demo Mode Detection ─────────────────────────────────────
-const DEMO_MODE = new URLSearchParams(window.location.search).get('demo') === 'true';
+const _qs = new URLSearchParams(window.location.search).get('demo');
+if (_qs === 'true') localStorage.setItem('puputan_demo','1');
+if (_qs === 'false') localStorage.removeItem('puputan_demo');
+const DEMO_MODE = localStorage.getItem('puputan_demo') === '1';
+let demoPos = null;
+function demoWalk(fraction) {
+  const level = LEVELS.find(l => l.id === state.currentLevel);
+  if (!level || !demoPos) return;
+  demoPos.lat += (level.cache.lat - demoPos.lat) * fraction;
+  demoPos.lon += (level.cache.lon - demoPos.lon) * fraction;
+  gameMap.setPlayerPosition(demoPos.lat, demoPos.lon, 5);
+  updateNavigationHUD({ lat: demoPos.lat, lon: demoPos.lon, accuracy: 5 }, level.cache);
+}
 
 // ── State ────────────────────────────────────────────────────
 const STATE_KEY = 'geocaching_puputan_state';
@@ -165,7 +177,7 @@ function renderLevelMap() {
   PixelMap.render(container, {
     levels: LEVELS,
     completed: state.levelsCompleted,
-    unlockedUpTo: state.maxUnlocked,
+    unlockedUpTo: DEMO_MODE ? LEVELS.length : state.maxUnlocked,
     postTestScores: state.postTestScores,
     score: state.score,
     onSelect: (levelId) => startLevel(levelId),
@@ -375,7 +387,7 @@ function startNavigation() {
     const gpsDot = document.getElementById('gps-dot');
     const gpsText = document.getElementById('gps-status-text');
 
-    const started = geoTracker.start(
+    const started = DEMO_MODE ? false : geoTracker.start(
       // On position update
       (pos) => {
         gpsDot.className = 'gps-dot active';
@@ -406,11 +418,11 @@ function startNavigation() {
       showToast('🛠️ Demo Mode: GPS disimulasikan di dekat cache', 'info');
       gpsDot.className = 'gps-dot active';
       gpsText.textContent = 'GPS simulasi (demo)';
-      const simLat = level.cache.lat + (Math.random() - 0.5) * 0.0002;
-      const simLon = level.cache.lon + (Math.random() - 0.5) * 0.0002;
-      gameMap.setPlayerPosition(simLat, simLon, 5);
+      demoPos = { lat: level.cache.lat + 0.0016, lon: level.cache.lon - 0.0013 };
+      gameMap.setPlayerPosition(demoPos.lat, demoPos.lon, 5);
       gameMap.fitBounds();
-      updateNavigationHUD({ lat: simLat, lon: simLon, accuracy: 5 }, level.cache);
+      updateNavigationHUD({ lat: demoPos.lat, lon: demoPos.lon, accuracy: 5 }, level.cache);
+      const wb = document.getElementById('btn-demo-walk'); if (wb) wb.classList.remove('hidden');
     } else if (!started) {
       showToast('GPS tidak tersedia pada perangkat ini.', 'error');
     }
@@ -452,6 +464,7 @@ function updateNavigationHUD(playerPos, cache) {
 }
 
 function stopNavigation() {
+  const wb = document.getElementById('btn-demo-walk'); if (wb) wb.classList.add('hidden');
   if (geoTracker) {
     geoTracker.stop();
   }
@@ -851,6 +864,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Navigation ──
   document.getElementById('btn-confirm').addEventListener('click', confirmPosition);
+  document.getElementById('btn-demo-walk').addEventListener('click', () => demoWalk(0.4));
+  const dt = document.getElementById('btn-demo-toggle');
+  dt.textContent = DEMO_MODE ? 'MODE DEMO: ON (ketuk untuk matikan)' : 'MODE DEMO: OFF (tanpa ke lokasi)';
+  dt.classList.toggle('on', DEMO_MODE);
+  dt.addEventListener('click', () => { if (DEMO_MODE) localStorage.removeItem('puputan_demo'); else localStorage.setItem('puputan_demo','1'); location.href = location.pathname; });
 
   document.getElementById('btn-nav-back').addEventListener('click', goBack);
 
@@ -881,10 +899,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (DEMO_MODE) {
     const banner = document.createElement('div');
     banner.id = 'demo-banner';
-    banner.innerHTML = '🛠️ <strong>DEVELOPER DEMO MODE</strong> — GPS bypass aktif · <a href="' + window.location.pathname + '" style="color:#1A1A2E;text-decoration:underline">Matikan Demo</a>';
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#F0A500;color:#1A1A2E;text-align:center;padding:8px 16px;font-size:0.8rem;font-family:var(--font-body);font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+    banner.textContent = 'MODE DEMO';
+    banner.style.cssText = 'position:fixed;bottom:6px;left:6px;z-index:99999;background:#F0A500;color:#1A1A2E;padding:4px 8px;font-size:10px;font-family:var(--font-heading);border:2px solid #1A1A2E;pointer-events:none;';
     document.body.prepend(banner);
-    document.body.style.paddingTop = '36px';
     console.log('%c🛠️ DEMO MODE ACTIVE', 'background:#F0A500;color:#1A1A2E;padding:8px 16px;font-size:16px;font-weight:bold;border-radius:4px;');
   }
 });
