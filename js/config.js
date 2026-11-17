@@ -8,6 +8,6 @@
 // dan tidak ada yang dikirim ke mana pun.
 // ============================================================
 window.REPORT_CONFIG = {
-  url: '',
-  token: 'GANTI-DENGAN-KODE-RAHASIA'
+  url: 'https://script.google.com/macros/s/AKfycbwnb3avXF1mebDcm2fjFba9QTx4T0YgNPWLjFX87MAo2nlQYZmf6qD3BRflYudVq6uDQg/exec',
+  token: 'puputan-kelas9a-2026'
 };
