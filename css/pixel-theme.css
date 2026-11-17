@@ -921,3 +921,4 @@ body[data-scene="dusk"] .px-ledge {
 }
 .demo-toggle{font-size:11px}.demo-toggle.on{background:#F0A500;color:#1A1A2E}#btn-demo-walk{margin-bottom:8px;width:100%}
 .demo-toggle{font-size:11px}.demo-toggle.on{background:#F0A500;color:#1A1A2E}#btn-demo-walk{margin-bottom:8px;width:100%}
+.id-label{display:block;font-family:var(--px-font);font-size:10px;color:#8a3b12;margin:14px 4px 6px;text-align:left}.id-note{font-size:14px;margin:16px 4px;color:var(--px-brown)}#identity-form .btn-primary{width:100%;margin-top:6px}

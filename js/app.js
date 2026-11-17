@@ -39,6 +39,7 @@ let state = {
 };
 
 let currentPage = null;
+const clueAttempts = {};
 let gameMap = null;
 let geoTracker = null;
 let levelStartTime = null;
@@ -85,6 +86,7 @@ function resetState() {
 // ── Page Router ──────────────────────────────────────────────
 // Label tombol kembali (pojok kiri atas) untuk tiap halaman
 const BACK_LABELS = {
+  'page-identity': 'BERANDA',
   'page-levels': 'BERANDA',
   'page-clue': 'PETA',
   'page-cache': 'PETA',
@@ -135,6 +137,7 @@ function showPage(pageId) {
 // Kembali ke halaman sebelumnya secara logis
 function goBack() {
   switch (currentPage) {
+    case 'page-identity':
     case 'page-levels':
       showPage('page-home');
       break;
@@ -258,6 +261,8 @@ function checkAnswer() {
 
   const levelId = state.currentLevel;
   const isCorrect = validateAnswer(levelId, answer);
+  clueAttempts[levelId] = (clueAttempts[levelId] || 0) + 1;
+  Reporter.log('teka_teki', { level: levelId, jawaban: answer, benar: isCorrect, percobaan: clueAttempts[levelId] });
 
   if (isCorrect) {
     const level = LEVELS.find(l => l.id === levelId);
@@ -308,6 +313,7 @@ function useHint() {
 
   state.hintsUsed.push(levelId);
   saveState();
+  Reporter.log('hint', { level: levelId });
 
   const hintEl = document.getElementById('hint-text');
   hintEl.classList.remove('hidden');
@@ -487,6 +493,7 @@ function confirmPosition() {
     stopNavigation();
     createConfetti();
     showToast('🎉 [DEMO] Posisi dikonfirmasi! Cache ditemukan!', 'success');
+    Reporter.log('cache', { level: levelId, jarak: null });
 
     if (!state.levelsCompleted.includes(levelId)) {
       state.levelsCompleted.push(levelId);
@@ -510,6 +517,7 @@ function confirmPosition() {
     stopNavigation();
     createConfetti();
     showToast('🎉 Posisi dikonfirmasi! Cache ditemukan!', 'success');
+    Reporter.log('cache', { level: levelId, jarak: Math.round(distance) });
 
     // Mark level as completed
     if (!state.levelsCompleted.includes(levelId)) {
@@ -656,6 +664,8 @@ function submitPostTest() {
   let totalPoints = 0;
   let allAnswered = true;
   const answers = {};
+  const items = [];
+  const plain = s => String(s).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 
   level.postTest.forEach((q, idx) => {
     totalPoints += q.points;
@@ -672,15 +682,10 @@ function submitPostTest() {
       }
       answers[idx] = { type: 'mc', selected: selectedIdx, correct: q.correct };
 
-      if (selectedIdx === q.correct) {
-        earnedPoints += q.points;
-        // Mark correct
-        document.getElementById(`pq-opt-${idx}-${selectedIdx}`).classList.add('correct');
-      } else {
-        // Mark wrong and show correct
-        document.getElementById(`pq-opt-${idx}-${selectedIdx}`).classList.add('wrong');
-        document.getElementById(`pq-opt-${idx}-${q.correct}`).classList.add('correct');
-      }
+      // Siswa hanya melihat skor: kunci jawaban tidak ditampilkan
+      const isRight = selectedIdx === q.correct;
+      if (isRight) earnedPoints += q.points;
+      items.push({ no: idx + 1, tipe: 'pilihan', soal: plain(q.question), jawaban: plain(q.options[selectedIdx]), kunci: plain(q.options[q.correct]), benar: isRight, poin: isRight ? q.points : 0, maks: q.points });
     } else if (q.type === 'essay') {
       const textarea = document.getElementById(`pq-essay-${idx}`);
       const essayText = textarea ? textarea.value.trim() : '';
@@ -690,6 +695,7 @@ function submitPostTest() {
       }
       answers[idx] = { type: 'essay', text: essayText };
       earnedPoints += q.points; // Essay: points for filling in
+      items.push({ no: idx + 1, tipe: 'esai', soal: plain(q.question), jawaban: essayText, kunci: '', benar: null, poin: q.points, maks: q.points });
     }
   });
 
@@ -704,6 +710,7 @@ function submitPostTest() {
   state.postTestAnswers[levelId] = answers;
   state.score += earnedPoints - previousScore;
   saveState();
+  Reporter.log('posttest', { level: levelId, skor: earnedPoints, total: totalPoints, items: items });
 
   // Disable inputs
   document.querySelectorAll('.pq-option input').forEach(i => i.disabled = true);
@@ -778,6 +785,7 @@ function showCompletion() {
     stat('coin', state.score, 'Total Poin') +
     stat('bulb', state.hintsUsed.length, 'Hint Digunakan');
 
+  Reporter.log('selesai', {});
   showPage('page-complete');
   PixelKit.renderTrophy(document.getElementById('px-trophy'));
   PixelKit.dialog(document.getElementById('complete-dialog'), {
@@ -825,7 +833,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('px-back').addEventListener('click', goBack);
 
   // ── Home Page ──
-  document.getElementById('btn-start').addEventListener('click', () => {
+  function openIdentity() {
+    showPage('page-identity');
+    PixelKit.dialog(document.getElementById('identity-dialog'), { who: 'guide', text: 'Selamat datang, calon penjelajah! Sebutkan dulu siapa dirimu agar gurumu bisa mencatat petualanganmu.' });
+  }
+
+  function beginGame() {
     if (!state.started || state.levelsCompleted.length === 0) {
       resetState();
     }
@@ -833,6 +846,34 @@ document.addEventListener('DOMContentLoaded', () => {
     saveState();
     renderLevelMap();
     showPage('page-levels');
+  }
+
+  Reporter.setSummary(() => ({
+    levelSelesai: state.levelsCompleted.length,
+    skor: state.score,
+    waktu: Object.values(state.levelTimes || {}).reduce((a, b) => a + b, 0),
+    hint: (state.hintsUsed || []).length
+  }));
+
+  document.getElementById('btn-start').addEventListener('click', () => {
+    if (!Reporter.hasIdentity()) {
+      openIdentity();
+      return;
+    }
+    beginGame();
+  });
+
+  // ── Identitas Siswa ──
+  document.getElementById('identity-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const nama = v('id-nama'), absen = v('id-absen'), kelas = v('id-kelas');
+    if (nama.length < 3) { showToast('Isi nama lengkap dulu ya.', 'warning'); shakeElement(document.getElementById('id-nama')); return; }
+    if (!absen) { showToast('Isi nomor absen dulu ya.', 'warning'); shakeElement(document.getElementById('id-absen')); return; }
+    if (!kelas) { showToast('Isi kelas dulu ya.', 'warning'); shakeElement(document.getElementById('id-kelas')); return; }
+    resetState();
+    Reporter.setIdentity({ nama, absen, kelas, sekolah: v('id-sekolah') });
+    beginGame();
   });
 
   document.getElementById('btn-continue').addEventListener('click', () => {
@@ -843,6 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-reset').addEventListener('click', () => {
     if (confirm('Yakin ingin menghapus semua progress? Tindakan ini tidak dapat dibatalkan.')) {
       resetState();
+      Reporter.clearIdentity();
       document.getElementById('continue-section').classList.add('hidden');
       showToast('🔄 Progress telah direset.', 'info');
     }
@@ -888,6 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Completion ──
   document.getElementById('btn-replay').addEventListener('click', () => {
     resetState();
+    Reporter.clearIdentity();
     renderLevelMap();
     showPage('page-home');
     showToast('🔄 Game direset! Siap untuk petualangan baru.', 'info');
@@ -902,7 +945,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (PREVIEW) {
     state.started = true; state.levelsCompleted = [0, 1]; state.maxUnlocked = 2; state.currentLevel = 2; state.score = 350;
     setTimeout(() => {
-      if (PREVIEW === 'levels') { renderLevelMap(); showPage('page-levels'); }
+      if (PREVIEW === 'identity') openIdentity();
+      else if (PREVIEW === 'levels') { renderLevelMap(); showPage('page-levels'); }
       else if (PREVIEW === 'clue') startLevel(2);
       else if (PREVIEW === 'cache') revealCache(2);
       else if (PREVIEW === 'nav') { revealCache(2); startNavigation(); }

@@ -71,6 +71,28 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
+       PAGE 1b: IDENTITAS SISWA
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="page-identity" class="page" style="display:none">
+    <div class="clue-content">
+      <div class="level-badge">PENDAFTARAN</div>
+      <div id="identity-dialog" class="px-dialog-slot"></div>
+      <form id="identity-form" class="parchment-card" autocomplete="off" novalidate>
+        <div class="px-parch-title"><i class="px-ico" data-ico="book"></i> IDENTITAS PETUALANG</div>
+        <label class="id-label" for="id-nama">Nama lengkap</label>
+        <input type="text" id="id-nama" class="answer-input" placeholder="Contoh: Ni Made Ayu" maxlength="60">
+        <label class="id-label" for="id-absen">Nomor absen</label>
+        <input type="text" id="id-absen" class="answer-input" inputmode="numeric" placeholder="Contoh: 12" maxlength="3">
+        <label class="id-label" for="id-kelas">Kelas</label>
+        <input type="text" id="id-kelas" class="answer-input" placeholder="Contoh: XI IPS 2" maxlength="20">
+        <label class="id-label" for="id-sekolah">Sekolah (opsional)</label>
+        <input type="text" id="id-sekolah" class="answer-input" placeholder="Nama sekolah" maxlength="60">
+        <p class="id-note">Jawaban dan skormu dikirim ke gurumu untuk penilaian. Kamu hanya melihat skor milikmu sendiri.</p>
+        <button type="submit" class="btn-primary"><i class="px-ico" data-ico="play"></i> Mulai Petualangan</button>
+      </form>
+    </div>
+  </div>
+  <!-- ═══════════════════════════════════════════════════════════
        PAGE 2: LEVEL MAP / PETA LEVEL
        ═══════════════════════════════════════════════════════════ -->
   <div id="page-levels" class="page" style="display:none">
@@ -309,6 +331,8 @@
   <script src="js/data.js"></script>
   <script src="js/geo.js"></script>
   <script src="js/effects.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/reporter.js"></script>
   <script src="js/pixelkit.js"></script>
   <script src="js/map.js"></script>
   <script src="js/pixelmap.js"></script>
